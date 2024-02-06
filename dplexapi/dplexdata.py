@@ -3,6 +3,7 @@ from dplexapi.dplex import PlexInterface
 import tomllib
 from io import BytesIO
 from jinja2 import Template
+import os, time, subprocess
 
 xspf_template = """<?xml version="1.0" encoding="UTF-8"?>
 <playlist xmlns="http://xspf.org/ns/0/" xmlns:vlc="http://www.videolan.org/vlc/playlist/ns/0/" version="1">
@@ -23,11 +24,12 @@ xspf_template = """<?xml version="1.0" encoding="UTF-8"?>
 </playlist>"""
 
 class Plexdata:
-    def __init__(self) -> None:
+    def __init__(self, basedir) -> None:
         with open("config.toml", mode="rb") as fp:
             self.cfg = tomllib.load(fp)
         self.plex = PlexInterface(self.cfg["plexurl"],self.cfg["plextoken"])
         self.cutter = CutterInterface(self.cfg["fileserver"])
+        self.basedir = basedir
         
         # initialization.
         self.initial_section = self.plex.sections[0]
@@ -187,3 +189,53 @@ class Plexdata:
                 sel_movie = lmovie[0]
         self._selection['movie'] = sel_movie
         return self._selection['movie']
+    
+    async def _timeline(self, req):
+        t0 = time.time()
+        #------------------------------
+        basename = str(req['basename']); 
+        pos = int(req['pos']); 
+        l = int(req['l']); 
+        r = int(req['r']); 
+        step = int(req['step']); 
+        size = req['size']
+        m = self._selection['movie']
+        target = self.basedir + "/dist/static/"+ basename
+        tl = self.cutter.gen_timeline(m.duration // 1000, pos, l, r, step)
+        r = self.cutter.timeline(m, target , size, tl)
+        #------------------------------
+        t1 = time.time()
+        print(f"total:{(t1-t0):5.2f}")
+        #------------------------------
+        return r
+    
+    async def _movie_info(self, req):
+        if req is not None:
+            section_name = req['section']
+            movie_name = req['movie']
+            if movie_name != '':
+                s = await self._update_section(section_name)
+                m = await self._update_movie(movie_name)
+                m_info = { 'movie_info': self.plex.movie_rec(m) }
+            else:
+                if section_name == '':
+                    s = await self._update_section('Plex Recordings')
+                m = await self._update_movie('')
+                m_info = { 'movie_info': self.plex.movie_rec(m) }
+        else:
+            m_info = { 'movie_info': { 'duration': 0 } }
+        return m_info
+    
+    async def _frame(self, req):
+        if req is not None:
+            movie_name = req['movie_name']
+            pos_time = req['pos_time']
+            try:
+                m = await self._update_movie(movie_name)
+                pic_name = await self.cutter.aframe(m ,pos_time ,self.basedir + "/dist/static/")
+            except subprocess.CalledProcessError as e:
+                print(f"\nframe throws error:\n{str(e)}\n")             
+                pic_name = 'error.jpg'
+        else:
+            pic_name = 'error.jpg'
+        return pic_name

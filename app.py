@@ -10,7 +10,7 @@ import time
 
 from dplexapi.dplexdata import Plexdata
 
-plexdata = Plexdata()
+plexdata = Plexdata(os.path.dirname(__file__))
 
 # overwrite jinja2 delimiters to avoid conflict with vue delimiters
 class CustomQuart(Quart):
@@ -91,25 +91,7 @@ async def set_movie_get_info():
     await request.get_data()
     if request.method == 'POST':
         req = json.loads(await request.body)
-        if req is not None:
-            section_name = req['section']
-            movie_name = req['movie']
-            if movie_name != '':
-                s = await plexdata._update_section(section_name)
-                m = await plexdata._update_movie(movie_name)
-                m_info = { 'movie_info': plexdata.plex.movie_rec(m) }
-            else:
-                if section_name == '':
-                    s = await plexdata._update_section('Plex Recordings')
-                m = await plexdata._update_movie('')
-                m_info = { 'movie_info': plexdata.plex.movie_rec(m) }
-            print(f"\nmovie_info: {req} -> \n{pf(m_info)}")
-            return m_info
-        else:
-            print(await request.data)
-            print(await request.json)
-            print(req)
-            return { 'movie_info': { 'duration': 0 } }
+        return await plexdata._movie_info(req)
 
 @app.route('/streamall.xspf')
 async def streamsectionall():
@@ -135,42 +117,18 @@ async def streamurl():
 @app.route("/timeline", methods=['POST'])
 async def timeline():
     await request.get_data()
-    t0 = time.time()
     if request.method == 'POST':
         req = json.loads(await request.body)
-        print(req)
-        basename = str(req['basename']); pos = int(req['pos']); l = int(req['l']); r = int(req['r']); 
-        step = int(req['step']); size = req['size']
-        m = plexdata._selection['movie']
-        target = os.path.dirname(__file__) + "/dist/static/"+ basename
-        tl = plexdata.cutter.gen_timeline(m.duration // 1000, pos, l, r, step)
-        r = plexdata.cutter.timeline(m, target , size, tl)
-        print(r)
-        t1 = time.time()
-        print(f"total:{(t1-t0):5.2f}")
-    return r   
+        r = await plexdata._timeline(req)
+        return r   
 
 @app.route("/frame/", methods=['POST'])
 async def get_frame():
     await request.get_data()
     if request.method == 'POST':
         req = json.loads(await request.body)
-        if req is not None:
-            m = await plexdata._update_movie(req['movie_name'])
-            try:
-                pic_name = await plexdata.cutter.aframe(m ,req['pos_time'] ,os.path.dirname(__file__) + "/dist/static/")
-                ret = { 'frame': url_for('static', filename=pic_name) }
-                print(f"frame: {req} -> {ret}")
-                return ret
-            except subprocess.CalledProcessError as e:
-                print(f"\nframe throws error:\n{str(e)}\n") 
-                ret = { 'frame': url_for('static', filename='error.jpg') }
-                print(f"frame: {req} -> {ret}")
-        else:
-            print(await request.data)
-            print(await request.body)
-            return { 'frame': url_for('static', filename='error.jpg') }
-        
+        return { 'frame': url_for('static', filename= await plexdata._frame(req)) }
+
 @app.route("/pos")
 async def get_pos():
     return { 'pos': plexdata._selection['pos_time'] }
