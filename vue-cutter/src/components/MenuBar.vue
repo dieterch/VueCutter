@@ -75,7 +75,8 @@ load_selection() // initial load
 </script>
 
 <template>
-    <v-app-bar 
+    <v-app-bar
+        name="menu-bar" 
         color="surface-light"
         density="compact"
         :elevation="0"

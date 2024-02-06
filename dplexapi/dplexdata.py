@@ -226,6 +226,17 @@ class Plexdata:
             m_info = { 'movie_info': { 'duration': 0 } }
         return m_info
     
+    async def _movie_cut_info(self):
+        m = self._selection['movie']
+        dmin = m.duration / 60000
+        apsc = self.cutter._apsc(m)
+        cutfile = self.cutter._cutfile(m)
+        eta_apsc = int((0.5 if not apsc else 0) * dmin)
+        eta_cut =  int(0.9 * dmin)
+        eta = eta_apsc + eta_cut
+        self._selection['eta'] = eta
+        return { 'movie': m.title, 'eta': eta, 'eta_cut': eta_cut, 'eta_apsc': eta_apsc, 'cutfile': cutfile, 'apsc' : apsc }
+    
     async def _frame(self, req):
         if req is not None:
             movie_name = req['movie_name']

@@ -93,6 +93,10 @@ async def set_movie_get_info():
         req = json.loads(await request.body)
         return await plexdata._movie_info(req)
 
+@app.route("/movie_cut_info")
+async def get_movie_cut_info():
+    return await plexdata._movie_cut_info()
+
 @app.route('/streamall.xspf')
 async def streamsectionall():
     b = await plexdata.streamsectionall()
@@ -142,7 +146,7 @@ if __name__ == '__main__':
 \033[H\033[J
 ****************************************************
 * Vue Quart WebCutter V0.01 (c)2024 Dieter Chvatal *
-* Async Backend for Webcutter                      *
+* Async Backend                                    *
 ****************************************************
 ''')
     try:
@@ -152,4 +156,4 @@ if __name__ == '__main__':
             plexdata.cutter.umount()
         except Exception:
             pass
-  
+        print('Bye!')

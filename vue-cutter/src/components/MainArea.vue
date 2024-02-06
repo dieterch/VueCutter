@@ -1,5 +1,7 @@
 <script setup>
 import { ref } from 'vue';
+import { useLayout } from 'vuetify';
+
 import {hpos,
         frame_name,
         pos2fname,
@@ -10,6 +12,7 @@ import {hpos,
 </script>
 
 <template>
+
     <div class="dbox dbox-main-detail" v-if="toggle_timeline">
             <v-img
             v-for="ival in ltimeline.larray"
@@ -35,6 +38,9 @@ import {hpos,
             <v-row>
                 <v-col cols="12">
                     toggle_timeline {{ toggle_timeline }}
+                    <v-btn @click="dialog = true">
+                        Dialog
+                    </v-btn>
                 </v-col>
             </v-row>
         </v-card-title>         
@@ -43,7 +49,8 @@ import {hpos,
 
 <style scoped>
 .shift_down {
-    top: calc(2*49px);
+    top: calc(2*48px);
+    /* top: 0; */
 }
 
 .dbox {

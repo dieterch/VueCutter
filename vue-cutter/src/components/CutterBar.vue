@@ -1,11 +1,14 @@
 <script setup>
 import { ref, computed } from 'vue'
+import axios from 'axios';
 
-import { 
+import {
+    protocol, host, 
     t0, t0_valid, 
     t1, t1_valid,
     inplace,
-    ltimeline, 
+    ltimeline,
+    movie, lmovie, section,
     hpos } from '@/app';
 
 const cut_ok = computed(() => {
@@ -23,10 +26,114 @@ function toggle_inplace() {
         inplace.value = !inplace.value
     }
 
+const lmovie_cut_info = ref({})
+const dialog = ref(false);
+const msg = ref('')
+
+async function cut_info() {
+    const endpoint = `${protocol.value}//${host.value}/movie_cut_info`
+    try {
+        const response = await axios.get(endpoint, { headers: { 'Content-type': 'application/json', }});
+        lmovie_cut_info.value = response.data;
+        //console.log("in movie_cut_info", this.lmovie_cut_info)
+        msg.value = {
+            section: section.value,
+            movie: lmovie.value,
+            In: t0.value,
+            Out: t1.value,
+            Inplace: inplace.value,
+            ".ap .sc Files ?": lmovie_cut_info.value.apsc,
+            "_cut File ?": lmovie_cut_info.value.cutfile
+        }
+        console.log(msg.value)
+        dialog.value = true
+    } catch (e) {
+        console.log(`${endpoint} \n` + String(e));
+        alert(`${endpoint} \n` + String(e));
+    }
+}
+
+async function do_cut() {
+    const endpoint = `${protocol.value}//${host.value}/cut`
+    try {
+        const response = await axios.post(endpoint,
+        {   
+            "section": section.value, 
+            "movie_name": lmovie.value,
+            "ss": t0.value,
+            "to": t1.value,
+            "inplace": inplace.value,
+            "etaest": lmovie_cut_info.value.eta
+        },
+        { headers: { 'Content-type': 'application/json',}});
+        console.log(response.data)
+    } catch (e) {
+        console.log(`${endpoint} \n` + String(e));
+        alert(`${endpoint} \n` + String(e));
+    }
+}
+
 </script>
 
 <template>
-    <v-app-bar 
+    <v-dialog
+    v-model="dialog"
+    persistent="true"
+    width="auto"
+    >
+        <v-card
+            title="Cut Info"
+            :subtitle="movie"
+        >
+            <v-card-text>
+                <v-table density="compact">
+                    <thead>
+                        <tr>
+                            <th class="text-left">Name</th>
+                            <th class="text-left">Wert</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr
+                        v-for = "(val, key) in msg"
+                        :key = "key"
+                        >
+                            <td>{{ key }}</td>
+                            <td>{{ val }}</td>
+                        </tr>
+                    </tbody>
+                </v-table>
+            </v-card-text>
+            <v-divider></v-divider>
+            <v-card-actions>
+                <v-spacer/>
+                <v-btn
+                    class="ml-4"
+                    color="blue-darken-1"
+                    variant="flat"
+                    prepend-icon="mdi-content-cut"
+                    width="120px"
+                    @click="do_cut"
+                >
+                Cut
+                </v-btn>
+                <v-btn
+                    class="ml-4"
+                    color="blue-darken-1"
+                    variant="flat"
+                    prepend-icon="mdi-cancel"
+                    width="120px"
+                    @click="dialog = false"
+                >
+                Cancel
+                </v-btn>
+                <v-spacer/>
+            </v-card-actions>
+        </v-card>
+    </v-dialog>
+
+    <v-app-bar
+    name="cutter-bar" 
     color="surface-light"
     density="compact"
     height="100px"
@@ -123,7 +230,7 @@ function toggle_inplace() {
                     block="true"
                     size="default"
                     append-icon="mdi-content-cut"
-                    @click="docut2"
+                    @click="cut_info"
                 >
                 Cut
                 </v-btn>

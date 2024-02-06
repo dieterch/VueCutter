@@ -67,6 +67,7 @@ function toggle_and_timeline(mypos) {
 
 <template>
     <v-navigation-drawer
+        name="side-bar"
         permanent
         location="right"
         color="surface-light"
