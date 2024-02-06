@@ -25,7 +25,7 @@ const myCustomLightTheme = {
     background: '#FFFFFF',
     surface: '#FFFFFF',
     'surface-bright': '#FFFFFF',
-    'surface-light': '#EEEEEE',
+    'surface-light': '#CCCCCC',
     'surface-variant': '#424242',
     'on-surface-variant': '#EEEEEE',
     primary: '#1867C0',

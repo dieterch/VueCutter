@@ -55,6 +55,7 @@ export const hpos = (b) => {
         }
         timeline(lpos.value)                
     } else if (b.type == "abs") {
+        //console.log('in hpos type abs', b)
         lpos.value = b.val
         timeline(lpos.value)                 
     } else if (b.type == "t0")  {

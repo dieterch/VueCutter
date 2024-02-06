@@ -153,6 +153,7 @@ cython_debug/
 #.idea/
 
 # keine gemounteten files
+instance/*
 dplexapi/mnt/*
 !dplexapi/mnt/.keep
 

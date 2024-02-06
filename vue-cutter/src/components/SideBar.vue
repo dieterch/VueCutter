@@ -78,8 +78,9 @@ function toggle_and_timeline(mypos) {
                     density="comfortable" 
                     icon="mdi-arrow-left-bold-box-outline" 
                     class="my-2 ml-3"
-                    color="primary"
-                    size="small"
+                    color="surface-light"
+                    size="default"
+                    variant="flat"
                     @click="page_minus_timeline()"
                 ></v-btn>
             </v-col>
@@ -89,8 +90,9 @@ function toggle_and_timeline(mypos) {
                     density="comfortable" 
                     icon="mdi-filmstrip" 
                     class="my-2 ml-2"
-                    color="primary"
-                    size="small"
+                    color="surface-light"
+                    size="default"
+                    variant="flat"
                     @click="toggle_and_timeline(lpos)"
                 ></v-btn>
             </v-col>
@@ -100,8 +102,9 @@ function toggle_and_timeline(mypos) {
                     density="comfortable" 
                     icon="mdi-arrow-right-bold-box-outline" 
                     class="my-2 mr-10"
-                    color="primary"
-                    size="small"
+                    color="surface-light"
+                    size="default"
+                    variant="flat"
                     @click="page_plus_timeline()"
                 ></v-btn>
             </v-col>
