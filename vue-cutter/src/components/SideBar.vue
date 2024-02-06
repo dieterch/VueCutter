@@ -60,7 +60,7 @@ function toggle_and_timeline(mypos) {
     let tlt = toggle_timeline.value
     toggle_timeline.value = !tlt
     lpos.value = posvalid(lpos.value)
-    console.log('in "toggle_and_timeline":',mypos)
+    // console.log('in "toggle_and_timeline":',mypos)
     timeline(mypos)
 }
 </script>
