@@ -267,7 +267,7 @@ if __name__ == '__main__':
 ****************************************************
 ''')
     try:
-        asyncio.run(app.run_task(host='0.0.0.0', debug=True))
+        asyncio.run(app.run_task(host='0.0.0.0', port=5200, debug=False))
     finally:
         try:
             plexdata.cutter.umount()

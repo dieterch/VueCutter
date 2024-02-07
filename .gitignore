@@ -165,3 +165,4 @@ dist/static/*.gif
 !dist/static/white_frame.png
 !dist/static/yellow_frame.png
 dist/static/*.jpg
+config.toml

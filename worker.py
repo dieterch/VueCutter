@@ -3,13 +3,16 @@ import time
 from redis import Redis
 from redis.exceptions import ConnectionError
 from rq import Connection, Queue, Worker
+import tomllib
 
 from dplexapi.dcut import CutterInterface
 
-fileserver = '192.168.15.10'
-cutter = CutterInterface(fileserver)
+with open("config.toml", mode="rb") as fp:
+    cfg = tomllib.load(fp)
 
-redis_connection = Redis(host='localhost',port=6379,password='63nTa6UlGeRipER5HIlInTH5hoS3ckL4')
+cutter = CutterInterface(cfg['fileserver'])
+
+redis_connection = Redis(host='localhost',port=6379,password=cfg['redispw'])
 
 if __name__ == '__main__':
     for i in range(10):
