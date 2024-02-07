@@ -182,13 +182,22 @@ export const t0 = ref("00:00:00")
 export const t0_valid = ref(false)
 export const t1 = ref("01:00:00")
 export const t1_valid = ref(false)
-export const inplace = ref(false) 
+export const inplace = ref(true) 
+
+
+export function reset_t0_t1() {
+    t0.value = "00:00:00"
+    t0_valid.value = false 
+    t1.value = "01:00:00"
+    t1_valid.value = false                 
+}
 
 // computed:
 export const movie = computed({
     get: () => {
-        //this.reset_t0_t1()
+        //reset_t0_t1()
         lpos.value = 0
+        //timeline(lpos.value)
         //this.lmovie_dummy = this.lmovie_dummy
         load_movie_info()
         return lmovie.value
@@ -222,3 +231,11 @@ export async function load_movie_info() {
         alert(`${endpoint} \n` + String(e));
     }
 }
+
+export const progress_status = ref({
+    "apsc_size": 0,
+    "progress": 0,
+    "started": 0,
+    "status": "idle",
+    "title": "-"
+  })

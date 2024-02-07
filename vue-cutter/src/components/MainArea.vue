@@ -6,7 +6,7 @@ import {hpos,
         frame_name,
         pos2fname,
         toggle_timeline,
-        ltimeline
+        ltimeline, progress_status
 } from '@/app';
 
 </script>
@@ -25,29 +25,19 @@ import {hpos,
     </div>
     <div class="dbox dbox-main">
         <v-img 
-            class="mx-0 shift_down"
+            class="mx-0 pa-1 shift_down"
             :src="frame_name" 
             alt="... loading ..."
             >
         </v-img>
     </div>
-    <v-card
-        class="shift_down"
-        >
-        <v-card-title>
-            <v-row>
-                <v-col cols="12">
-                    toggle_timeline {{ toggle_timeline }}
-                    <v-btn @click="dialog = true">
-                        Dialog
-                    </v-btn>
-                </v-col>
-            </v-row>
-        </v-card-title>         
-    </v-card>
-</template> 
+</template>
 
 <style scoped>
+.v-progress-circular {
+  margin: 1rem;
+}
+
 .shift_down {
     top: calc(2*48px);
     /* top: 0; */

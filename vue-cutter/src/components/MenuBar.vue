@@ -7,7 +7,10 @@ import {host, protocol, str2pos, lpos,
         sections,section,
         movies, movie,
         seasons,season,
-        series, serie
+        series, serie, 
+        toggle_timeline, 
+        timeline, 
+        reset_t0_t1
 } from '@/app';
 
 // methods:
@@ -25,6 +28,7 @@ async function load_selection() {
         series.value = response.data.series;
         serie.value = response.data.serie;
         lpos.value = str2pos(response.data.pos_time)
+        onChangeMovie()
     } catch (e) {
         console.log(`${endpoint} \n` + String(e));
         alert(`${endpoint} \n` + String(e));
@@ -70,6 +74,12 @@ async function update_season() {
         alert(`${endpoint} \n` + String(e));
     }
 }
+
+function onChangeMovie() {
+    reset_t0_t1()
+    toggle_timeline.value = false
+    console.log("onChangeMovie")
+}   
 
 load_selection() // initial load
 </script>
@@ -142,6 +152,7 @@ load_selection() // initial load
                 density="compact"
                 :items="movies"
                 variant="solo"
+                @update:model-value="onChangeMovie"
             ></v-select>
 
         </template>

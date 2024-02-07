@@ -1,4 +1,3 @@
-
 import asyncio
 import os
 import time
@@ -91,7 +90,7 @@ class CutterInterface:
 
 	def _movie_stats(self, movie, ss, to, inplace=False):
 		"""
-		return filenames and length for every file in the moviefolder
+		return TS Progress in percent 
 		"""
 		self.mount(movie)
 		cl = self.cutlength(ss,to)
@@ -107,6 +106,30 @@ class CutterInterface:
 		else:
 			if os.path.exists(self._cutname(movie)):
 				progress = os.path.getsize(self._cutname(movie))/targetsize
+			else:
+				progress = 0
+		progress = int(progress * 100) if progress < 1.0 else 100
+		return progress
+
+	def _apsc_stats(self, movie, ss, to, inplace=False):
+		"""
+		return AP Progress in percent 
+		"""
+		self.mount(movie)
+		cl = self.cutlength(ss,to)
+		ml = (movie.duration / 60000)
+		faktor = cl/ml
+		moviesize = os.path.getsize(self._pathname(movie))
+		targetsize = faktor * moviesize * 0.05 / 1000
+		print(f"moviesize: {moviesize} targetsize: {targetsize} faktor: {faktor} cl: {cl} ml: {ml}")
+		if inplace:
+			if os.path.exists(self._pathname(movie)+'.ap'):
+				progress = os.path.getsize(self._pathname(movie)+'.ap')/targetsize
+			else:
+				progress = 0
+		else:
+			if os.path.exists(self._cutname(movie)+'.ap'):
+				progress = os.path.getsize(self._cutname(movie)+'.ap')/targetsize
 			else:
 				progress = 0
 		progress = int(progress * 100) if progress < 1.0 else 100

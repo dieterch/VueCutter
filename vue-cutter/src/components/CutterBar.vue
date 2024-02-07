@@ -9,7 +9,7 @@ import {
     inplace,
     ltimeline,
     movie, lmovie, section,
-    hpos } from '@/app';
+    hpos, progress_status } from '@/app';
 
 const cut_ok = computed(() => {
         // console.log(t0_valid.value, t1_valid.value, ltimeline.value.step)
@@ -54,7 +54,7 @@ async function cut_info() {
 }
 
 async function do_cut() {
-    const endpoint = `${protocol.value}//${host.value}/cut`
+    const endpoint = `${protocol.value}//${host.value}/cut2`
     try {
         const response = await axios.post(endpoint,
         {   
@@ -67,10 +67,31 @@ async function do_cut() {
         },
         { headers: { 'Content-type': 'application/json',}});
         console.log(response.data)
+        progress()
+        dialog.value = false
     } catch (e) {
         console.log(`${endpoint} \n` + String(e));
         alert(`${endpoint} \n` + String(e));
     }
+}
+
+function progress() {
+    const endpoint = `${protocol.value}//${host.value}/progress`
+    let timer_id = setInterval( async () => {
+        try {
+            const response = await axios.get(endpoint, { headers: { 'Content-type': 'application/json', }});
+            progress_status.value = response.data
+            console.log(progress_status.value)
+            if (progress_status.value.status == "idle") {
+                console.log("done")
+                clearInterval(timer_id)
+            }
+        } catch (e) {
+            console.log(`${endpoint} \n` + String(e));
+            alert(`${endpoint} \n` + String(e));
+        }
+    }, 5000)
+    console.log("progress", timer_id)
 }
 
 </script>
@@ -109,7 +130,7 @@ async function do_cut() {
                 <v-spacer/>
                 <v-btn
                     class="ml-4"
-                    color="blue-darken-1"
+                    color="error"
                     variant="flat"
                     prepend-icon="mdi-content-cut"
                     width="120px"
