@@ -120,7 +120,7 @@ class CutterInterface:
 		ml = (movie.duration / 60000)
 		faktor = cl/ml
 		moviesize = os.path.getsize(self._pathname(movie))
-		targetsize = faktor * moviesize * 0.05 / 1000
+		targetsize = faktor * moviesize * 0.064 / 1000
 		print(f"moviesize: {moviesize} targetsize: {targetsize} faktor: {faktor} cl: {cl} ml: {ml}")
 		if inplace:
 			if os.path.exists(self._pathname(movie)+'.ap'):

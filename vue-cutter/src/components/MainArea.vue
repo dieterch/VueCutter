@@ -12,9 +12,8 @@ import {hpos,
 </script>
 
 <template>
-
     <div class="dbox dbox-main-detail" v-if="toggle_timeline">
-            <v-img
+        <v-img
             v-for="ival in ltimeline.larray"
             :key="ival"
             @click="hpos({val: ival, type:'abs'})"
@@ -23,7 +22,10 @@ import {hpos,
             >
         </v-img>  
     </div>
-    <div class="dbox dbox-main">
+    <div 
+        class="dbox dbox-main"
+        style="background-color: rgb(90, 90, 90);"
+    >
         <v-img 
             class="mx-0 pa-1 shift_down"
             :src="frame_name" 
@@ -52,13 +54,13 @@ import {hpos,
 .dbox-main-detail {
     flex-direction: row;
     justify-content: stretch;
-    background: var(--bg-pic);
+    /* background: var(--bg-pic); */
     grid-column: 1;
     grid-row: 1;
 }
 
 .dbox-main {
-    background: var(--bg-pic);
+    /* background: var(--bg-pic); */
     grid-column: 1;
     grid-row: 2;
 }
