@@ -4,6 +4,10 @@ import tomllib
 from io import BytesIO
 from jinja2 import Template
 import os, time, subprocess
+import pytz
+from redis import Redis
+from rq import Connection, Queue, Worker
+from rq.job import Job
 
 xspf_template = """<?xml version="1.0" encoding="UTF-8"?>
 <playlist xmlns="http://xspf.org/ns/0/" xmlns:vlc="http://www.videolan.org/vlc/playlist/ns/0/" version="1">
@@ -27,9 +31,13 @@ class Plexdata:
     def __init__(self, basedir) -> None:
         with open("config.toml", mode="rb") as fp:
             self.cfg = tomllib.load(fp)
+            
         self.plex = PlexInterface(self.cfg["plexurl"],self.cfg["plextoken"])
         self.cutter = CutterInterface(self.cfg["fileserver"])
         self.basedir = basedir
+        
+        self.redis_connection = Redis(host='localhost',port=6379,password=self.cfg['redispw'], db=0)
+        self.q = Queue('VueCutter', connection=self.redis_connection, default_timeout=600)
         
         # initialization.
         self.initial_section = self.plex.sections[0]
@@ -250,3 +258,99 @@ class Plexdata:
         else:
             pic_name = 'error.jpg'
         return pic_name
+    
+    async def _cut2(self, req):
+        section_name = req['section']
+        movie_name = req['movie_name']
+        ss = req['ss']
+        to = req['to']
+        inplace = req['inplace']
+        s = await self._update_section(section_name)
+        m = await self._update_movie(movie_name)        
+        res = f"Queue Cut From section '{s}', cut '{m.title}', In {ss}, Out {to}, inplace={inplace}"
+        try:
+            mm = self.plex.MovieData(m)
+            print("will cut now:\n",res)
+            job = self.q.enqueue_call(self.cutter.cut, args=(mm,ss,to,inplace,))
+            res = {
+                'Section': s.title,
+                'Duration Raw': mm.duration // 60000,
+                'Duration Cut': self.cutter.cutlength(ss,to),
+                'In': ss,
+                'Out': to,
+                'Inplace': inplace,
+                '.ap .sc Files': self.cutter._apsc(m),
+                'cut File': self.cutter._cutfile(m)
+            }
+            return { 'result': res}
+        except subprocess.CalledProcessError as e:
+            print(str(e))
+            return { 'result': str(e) }
+        
+    async def _doProgress(self):
+        mstatus = {
+            'title': '-',
+            'cut_progress': 0,
+            'apsc_progress': 0,
+            'started': 0,
+            'status': 'idle'
+        } 
+        workers = Worker.all(connection=self.redis_connection)
+        worker = workers[0] if len(workers) > 0 else None
+        if worker:
+            lhb = pytz.utc.localize(worker.last_heartbeat)
+            lhbtz = lhb.astimezone(pytz.timezone("Europe/Vienna"))
+            w = {
+                'name': worker.name,
+                'state': worker.state,
+                'last_heartbeat': lhbtz.strftime("%H:%M:%S"),
+                'current_job_id': worker.get_current_job_id(),
+                'failed': worker.failed_job_count
+            } 
+        else:
+            w = {
+                'status':'no worker detected'
+            }
+        qd = {
+            'started':self.q.started_job_registry.count,
+            'finished':self.q.finished_job_registry.count,
+            'failed':self.q.failed_job_registry.count,
+        }
+        if self.q.started_job_registry.count > 0:
+            qd['started_jobs'] = []
+            for job_id in self.q.started_job_registry.get_job_ids():
+                job = Job.fetch(job_id, connection=self.redis_connection)
+                m = self.plex.MovieData(job.args[0])
+                prog = self.cutter._movie_stats(*job.args)
+                apsc_prog = self.cutter._apsc_stats(*job.args)
+                #apsc_size = plexdata.cutter._apsc_size(m)
+                d = {
+                    'title': m.title,
+                    'ss':job.args[1],
+                    'to':job.args[2],
+                    'name': job_id,
+                    'status':job.get_status(refresh=True),
+                    'cut_progress':prog,
+                    'apsc_progress':apsc_prog
+                }
+                qd['started_jobs'].append(d)
+                mstatus.update({
+                    'title': m.title,
+                    #'apsc_size': apsc_size,
+                    'cut_progress': prog,
+                    'apsc_progress':apsc_prog,
+                    'started': self.q.started_job_registry.count,
+                    'status': d['status']           
+                })
+
+        if self.q.finished_job_registry.count > 0:
+            qd['finished_jobs'] = []
+            for job_id in self.q.finished_job_registry.get_job_ids():
+                job = Job.fetch(job_id, connection=self.redis_connection)
+                d = {
+                    'name': job_id,
+                    'result': job.result
+                }
+                qd['finished_jobs'].append(d) 
+
+        return mstatus        
