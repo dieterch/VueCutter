@@ -18,6 +18,47 @@ To configure this application, you have to create a **config.toml** file in the 
   redispw = 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
 ::
 
+# Installation:                                                                                            #
+# craete and enter a folder on a raspberry pi 4+ or similar device.                                        #
+# git clone https://github.com/dieterch/VueCutter.git                                                      # 
+#                                                                                                          #
+# install the python part in a virtual envirinment with the following commands:                            #
+# python -m venv venv                                                                                      #
+# source venv/bin/activate                                                                                 #
+# pip install -r requirements.txt                                                                          #
+#                                                                                                          #
+# install the frontend with the following commands:                                                        #
+# cd vue-cutter                                                                                            #
+# npm install                                                                                              #
+# npm run build                                                                                            #
+#                                                                                                          #
+# create the redis server with the following docker-compose.yml:                                           #
+## version: '3.8'
+## services:
+##   server:
+##     image: redis:6.2-alpine
+##     restart: always
+##     ports:
+##       - '6379:6379'                                                       
+##     command: redis-server --save 20 1 --loglevel warning --requirepass 63nxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+##     volumes:
+##       - server:/data
+## volumes:
+##   server:
+##     driver: local
+#                                                                                                          #
+# start and fetch the redis server from docker with the following command:                                 #
+# docker-compose up                                                                                        #
+#                                                                                                          #
+# install tmux, copy _VueCutter to your home directory and start the worker with the following command:    #
+# . _VueCutter                                                                                             #
+# manually leave tmux with ctrl+b and d (bckend process stays running)                                     #
+# attach to tmux with tmux attach                                                                          #
+# stop each process with ctrl+c with tmux attached                                                         #
+############################################################################################################
+############################################################################################################
+
+
 **Windows:**
 
 Create and activate a virtual environment:
