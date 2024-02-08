@@ -1,1 +1,2 @@
+source ./venv/bin/activate
 rq info -u redis://:63nTa6UlGeRipER5HIlInTH5hoS3ckL4@localhost:6379 --interval 1

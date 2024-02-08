@@ -1,0 +1,5 @@
+pushd /root/prog/python/VueCutter
+tmux \
+new-session 'source _startCutter' \; \
+split-window 'source _startWorker' \; \
+split-window -h 'source _rqinfo' \; \

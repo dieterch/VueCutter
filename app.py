@@ -1,3 +1,69 @@
+############################################################################################################
+############################################################################################################
+#                                                                                                          #
+# Quart VueCutter (c)2024 Dieter Chvatal                                                                   #
+#                                                                                                          #
+# This is the backend of the Vue Quart WebCutter. It is a simple wrapper around the PlexAPI and the Cutter #
+# class. The backend is written in Python and uses the Quart framework. The backend is responsible for     #
+# providing the frontend with the necessary data and for executing the cutting process.                    #
+# the cutting process is exeecuted by an rq worker, which is started as a seperate process worker.py.      #
+# the rq quue requires a redis server, it provide with a docker container specifyling redispw in the       # 
+# docker-compose.yml file. The redis server is used to store the cutting progress.                         #
+# a Plex Server in the local network is required. The PlexAPI is used to access the Plex Server.           #
+# to configure tis application, you have to create a config.toml file in the same directory as this file   #
+# with the following content:                                                                              #
+#                                                                                                          #
+# fileserver = 'xx.xx.xx.xx                                                                                #
+# plexurl = 'http://xx.xx.xx.xx:32400'                                                                     #
+# plextoken = 'sJFCVA4xxxxxxxxxxx'                                                                         #
+# redispw = '63nxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'                                                             #
+#                                                                                                          #
+# the frontend is built with vuetify.js and ita source is located in vue-cutter                            #
+# the frontend is deliverd by the python ASGI quart webserver                                              #
+#                                                                                                          #
+# ffmpeg is required,  the movies are cut by stunningly fast mcut (and its preprocessor reconstruct_apsc)  # 
+# forked from opendreambox/enigma2-plugin-reconstructapsc (originally part of VU+ ecosystem), modified to  #
+# run on a 32-bit arm architecture.                                                                        #
+#                                                                                                          #
+# a big Thank you to the original author Anders Holst (aho@sics.se), coded 2009-12-14 in C++               #
+#                                                                                                          #
+# Installation:                                                                                            #
+# craete and enter a folder on a raspberry pi 4+ or similar device.                                        #
+# git clone https://github.com/dieterch/VueCutter.git                                                      # 
+#                                                                                                          #
+# install the python part in a virtual envirinment with the following commands:                            #
+# python -m venv venv                                                                                      #
+# source venv/bin/activate                                                                                 #
+# pip install -r requirements.txt                                                                          #
+#                                                                                                          #
+# install the frontend with the following commands:                                                        #
+# cd vue-cutter                                                                                            #
+# npm install                                                                                              #
+# npm run build                                                                                            #
+#                                                                                                          #
+# create the redis server with the following docker-compose.yml:                                           #
+## version: '3.8'
+## services:
+##   server:
+##     image: redis:6.2-alpine
+##     restart: always
+##     ports:
+##       - '6379:6379'                                                       
+##     command: redis-server --save 20 1 --loglevel warning --requirepass 63nxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+##     volumes:
+##       - server:/data
+## volumes:
+##   server:
+##     driver: local
+#                                                                                                          #
+# start and fetch the redis server from docker with the following command:                                 #
+# docker-compose up                                                                                        #
+#                                                                                                          #
+# install tmux, copy _VueCutter to your home directory and start the worker with the following command:    #
+# . _VueCutter                                                                                             #
+############################################################################################################
+############################################################################################################
+
 import asyncio
 import json
 import os
@@ -8,46 +74,71 @@ from quart_cors import cors
 import subprocess
 import time
 
-from dplexapi.dplexdata import Plexdata
-plexdata = Plexdata(os.path.dirname(__file__))
 
-# overwrite jinja2 delimiters to avoid conflict with vue delimiters
+# overwrite jinja2 delimiters to avoid conflict with vue delimiters, was previosly used by me (Dieter Chvatal)
+# in order to transfer information from the backend to the frontend, while the frontend does not know its host ip address.
+# window.location.host and winndow.location.protocol is now used to get the host ip address. The code is left here for reference.
+# https://stackoverflow.com/questions/37039835/how-to-change-jinja2-delimiters
 class CustomQuart(Quart):
     jinja_options = Quart.jinja_options.copy()
-    jinja_options.update(dict(
-        block_start_string='<%',
-        block_end_string='%>',
-        variable_start_string='%%',
-        variable_end_string='%%',
-        comment_start_string='<#',
-        comment_end_string='#>',
-    ))
+    jinja_options.update(dict( block_start_string='<%', block_end_string='%>', variable_start_string='%%', 
+                              variable_end_string='%%',comment_start_string='<#',comment_end_string='#>',))
+
 
 # instantiate the app
-app = CustomQuart(__name__,
-            static_folder = "dist/static",
-            template_folder = "dist",
-            static_url_path = "/static"
-            )
+# the frontend is built with vuetify.js and is located in the dist folder
+# you have to set the static folder to the dist folder and the template folder to the dist folder in the backend like below
+# and edit vite.config.js to output to the dist folder within the frontend. in adddition you have to
+# run 'npm run build' after each modification of the frontend. Once you run this once, the included watch mode will
+# take care of the rest.
+app = CustomQuart(__name__, static_folder = "dist/static", template_folder = "dist", static_url_path = "/static")
 app = cors(app, allow_origin="*")
 app.config.from_object(__name__)
 
-# uncomment to disable caching
-@app.after_request
-async def add_header(response):
-    """
-    Add headers to both force latest IE rendering engine or Chrome Frame,
-    and also to cache the rendered page for x minutes.
-    """
-    response.headers['X-UA-Compatible'] = 'IE=Edge,chrome=1'
-    response.headers['Cache-Control'] = 'public, max-age=0'
-    return response
 
-# sanity check route
-@app.route('/ping', methods=['GET'])
-async def ping_pong():
-    return jsonify('pong!')
+# uncomment to disable caching, which is useful for development when you are actively changing the frontend
+# @app.after_request
+# async def add_header(response):
+#     """
+#     Add headers to both force latest IE rendering engine or Chrome Frame,
+#     and also to cache the rendered page for x minutes.
+#     """
+#     response.headers['X-UA-Compatible'] = 'IE=Edge,chrome=1'
+#     response.headers['Cache-Control'] = 'public, max-age=0'
+#     return response
 
+# the functionality of the backend is provided by the Plexdata class, which is imported here
+# the Plexdata class is a wrapper around the PlexAPI and the Cutter class
+from dplexapi.dplexdata import Plexdata
+plexdata = Plexdata(os.path.dirname(__file__))
+
+# routes to provide xspf files for VLC -> would be a candidate to be moved in a separate Quart blueprint
+# all movies in plex
+@app.route('/streamall.xspf')
+async def streamsectionall():
+    b = await plexdata.streamsectionall()
+    return await send_file(b, as_attachment=True,
+         attachment_filename='streamall.xspf',
+         mimetype='text/xspf+xml')
+    
+# all movies in the section
+@app.route('/streamsection.xspf')
+async def streamsection():
+    b = await plexdata.streamsection()
+    return await send_file(b, as_attachment=True,
+         attachment_filename='streamsection.xspf',
+         mimetype='text/xspf+xml')
+    
+# the selected movie
+@app.route('/streamurl.xspf')
+async def streamurl():
+    b = await plexdata.streamurl()
+    return await send_file(b, as_attachment=True,
+         attachment_filename='streamurl.xspf',
+         mimetype='text/xspf+xml')
+
+# the backend provides the following routes to the frontend
+# routes to select a section, a serie, a season, a movie, to update a section, a serie, a season, a movie
 @app.route("/selection")
 async def selection():
     return plexdata.get_selection()
@@ -85,6 +176,7 @@ async def update_season():
         print(f"update_season: {pf(req)}")
         return redirect(url_for('index'))
 
+# route to get information about a movie
 @app.route("/movie_info/", methods=['POST'])
 async def set_movie_get_info():
     await request.get_data()
@@ -92,39 +184,21 @@ async def set_movie_get_info():
         req = json.loads(await request.body)
         return await plexdata._movie_info(req)
 
+# route to get specific information for the cutting process
 @app.route("/movie_cut_info")
 async def get_movie_cut_info():
     return await plexdata._movie_cut_info()
 
-@app.route('/streamall.xspf')
-async def streamsectionall():
-    b = await plexdata.streamsectionall()
-    return await send_file(b, as_attachment=True,
-         attachment_filename='streamall.xspf',
-         mimetype='text/xspf+xml')
-
-@app.route('/streamsection.xspf')
-async def streamsection():
-    b = await plexdata.streamsection()
-    return await send_file(b, as_attachment=True,
-         attachment_filename='streamsection.xspf',
-         mimetype='text/xspf+xml')
-
-@app.route('/streamurl.xspf')
-async def streamurl():
-    b = await plexdata.streamurl()
-    return await send_file(b, as_attachment=True,
-         attachment_filename='streamurl.xspf',
-         mimetype='text/xspf+xml')
-
+# route to generate small pics for a timelind and deliver them to the frontend
 @app.route("/timeline", methods=['POST'])
 async def timeline():
     await request.get_data()
     if request.method == 'POST':
         req = json.loads(await request.body)
         r = await plexdata._timeline(req)
-        return r   
+        return r 
 
+# route to get a frame at a scpecific time position and deliver it to the frontend
 @app.route("/frame/", methods=['POST'])
 async def get_frame():
     await request.get_data()
@@ -132,10 +206,12 @@ async def get_frame():
         req = json.loads(await request.body)
         return { 'frame': url_for('static', filename= await plexdata._frame(req)) }
 
+# route to get the actual post_time of the backend. This is used to update the frontend
 @app.route("/pos")
 async def get_pos():
     return { 'pos': plexdata._selection['pos_time'] }
 
+# execute the cutting process. hand over the data to the rq worker
 @app.route("/cut2", methods=['POST'])
 async def do_cut2():
     await request.get_data()
@@ -144,10 +220,12 @@ async def do_cut2():
         req = json.loads(await request.body)
         return await plexdata._cut2(req)
         
+# route to get the progress of the cutting process
 @app.route("/progress")
 async def progress():
     return await plexdata._doProgress()
 
+# deliver the vuetify frontend
 @app.route("/")
 async def index():
     return await render_template('index.html')
