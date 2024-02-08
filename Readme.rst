@@ -9,8 +9,7 @@ Quart VueCutter
 
 Installation
 ------------
-To configure this application, you have to create a **config.toml** file in the same directory as this file with the following content: 
-
+To configure this application, you have to create a **config.toml** file in the same directory as this file with the following content:
 :: 
   fileserver = 'xx.xx.xx.xx'
   plexurl = 'http://xx.xx.xx.xx:32400'
