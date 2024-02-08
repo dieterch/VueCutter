@@ -1,69 +1,8 @@
 ############################################################################################################
 ############################################################################################################
-#                                                                                                          #
-# Quart VueCutter (c)2024 Dieter Chvatal                                                                   #
-#                                                                                                          #
-# This is the backend of the Vue Quart WebCutter. It is a simple wrapper around the PlexAPI and the Cutter #
-# class. The backend is written in Python and uses the Quart framework. The backend is responsible for     #
-# providing the frontend with the necessary data and for executing the cutting process.                    #
-# the cutting process is exeecuted by an rq worker, which is started as a seperate process worker.py.      #
-# the rq quue requires a redis server, it provide with a docker container specifyling redispw in the       # 
-# docker-compose.yml file. The redis server is used to store the cutting progress.                         #
-# a Plex Server in the local network is required. The PlexAPI is used to access the Plex Server.           #
-# to configure tis application, you have to create a config.toml file in the same directory as this file   #
-# with the following content:                                                                              #
-#                                                                                                          #
-# fileserver = 'xx.xx.xx.xx                                                                                #
-# plexurl = 'http://xx.xx.xx.xx:32400'                                                                     #
-# plextoken = 'sJFCVA4xxxxxxxxxxx'                                                                         #
-# redispw = '63nxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'                                                             #
-#                                                                                                          #
-# the frontend is built with vuetify.js and ita source is located in vue-cutter                            #
-# the frontend is deliverd by the python ASGI quart webserver                                              #
-#                                                                                                          #
-# ffmpeg is required,  the movies are cut by stunningly fast mcut (and its preprocessor reconstruct_apsc)  # 
-# forked from opendreambox/enigma2-plugin-reconstructapsc (originally part of VU+ ecosystem), modified to  #
-# run on a 32-bit arm architecture.                                                                        #
-#                                                                                                          #
-# a big Thank you to the original author Anders Holst (aho@sics.se), coded 2009-12-14 in C++               #
-#                                                                                                          #
-# Installation:                                                                                            #
-# craete and enter a folder on a raspberry pi 4+ or similar device.                                        #
-# git clone https://github.com/dieterch/VueCutter.git                                                      # 
-#                                                                                                          #
-# install the python part in a virtual envirinment with the following commands:                            #
-# python -m venv venv                                                                                      #
-# source venv/bin/activate                                                                                 #
-# pip install -r requirements.txt                                                                          #
-#                                                                                                          #
-# install the frontend with the following commands:                                                        #
-# cd vue-cutter                                                                                            #
-# npm install                                                                                              #
-# npm run build                                                                                            #
-#                                                                                                          #
-# create the redis server with the following docker-compose.yml:                                           #
-## version: '3.8'
-## services:
-##   server:
-##     image: redis:6.2-alpine
-##     restart: always
-##     ports:
-##       - '6379:6379'                                                       
-##     command: redis-server --save 20 1 --loglevel warning --requirepass 63nxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-##     volumes:
-##       - server:/data
-## volumes:
-##   server:
-##     driver: local
-#                                                                                                          #
-# start and fetch the redis server from docker with the following command:                                 #
-# docker-compose up                                                                                        #
-#                                                                                                          #
-# install tmux, copy _VueCutter to your home directory and start the worker with the following command:    #
-# . _VueCutter                                                                                             #
-# manually leave tmux with ctrl+b and d (bckend process stays running)                                     #
-# attach to tmux with tmux attach                                                                          #
-# stop each process with ctrl+c with tmux attached                                                         #
+##                                                                                                        ##
+## Quart VueCutter (c)2024 Dieter Chvatal                                                                 ##
+##                                                                                                        ##
 ############################################################################################################
 ############################################################################################################
 
