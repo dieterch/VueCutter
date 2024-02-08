@@ -1,8 +1,15 @@
-dStatemachine
+Quart VueCutter (c)2024 Dieter Chvatal
 ========
 
-Python INNIO Myplant Statemchine based Field debugger software. Download data on each engine Start and extract
-Data based on Engine states. Find Anomalies and analyse them in depth.
+This is the backend of the Vue Quart WebCutter. It is a simple wrapper around the PlexAPI and the Cutter class. The backend is written in Python and uses the Quart framework. The backend is responsible for providing the frontend with the necessary data and for executing the cutting process. the cutting process is exeecuted by an rq worker, which is started as a seperate process worker.py. the rq quue requires a redis server, it provide with a docker container specifyling redispw in the docker-compose.yml file. The redis server is used to store the cutting progress. A Plex Server in the local network is required. The PlexAPI is used to access the Plex Server. To configure tis application, you have to create a config.toml file in the same directory as this file
+with the following content: 
+
+```toml
+fileserver = 'xx.xx.xx.xx'
+plexurl = 'http://xx.xx.xx.xx:32400'
+plextoken = 'sJFCVA4xxxxxxxxxxx'
+redispw = '63nxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
+```
 
 Installation
 ------------
