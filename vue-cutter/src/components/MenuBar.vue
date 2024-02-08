@@ -81,13 +81,27 @@ function onChangeMovie() {
     console.log("onChangeMovie")
 }   
 
+
+import { useTheme } from 'vuetify'
+
+const theme = useTheme()
+
+function setTheme (themeName) { 
+  theme.global.name.value = themeName
+}
+
+function filterTheme (themeName) {
+  return ((themeName[0] != 'dark') & (themeName[0] != 'light'))
+}
+
+
 load_selection() // initial load
 </script>
 
 <template>
     <v-app-bar
         name="menu-bar" 
-        color="surface-light"
+        color="toolsbackground"
         density="compact"
         :elevation="0"
     >
@@ -160,6 +174,25 @@ load_selection() // initial load
         <template v-slot:append>
             <v-btn icon="mdi-reload" href="/force_update_section" size="small"></v-btn>
             <v-btn icon="mdi-dots-vertical" href="/streamurl.xspf" size="small"></v-btn>
+            <v-menu location="bottom">
+                <template v-slot:activator="{ props }">
+                    <v-btn icon="mdi-palette-swatch" @click="toggleTheme" v-bind="props" size="small"></v-btn>
+                </template>
+                <v-list
+                    density="compact"
+                >
+                        <v-list-item
+                            v-for="[key, value] of Object.entries(theme.themes.value).filter(filterTheme)"
+                            v-bind="props"
+                            :key="key"
+                            :color="isHovering ? 'primary' : 'transparent'"
+                            >
+                            <v-list-item-title
+                                @click="setTheme(key)"
+                            >{{ key }}</v-list-item-title>
+                        </v-list-item>
+                </v-list>
+            </v-menu>            
         </template>
     </v-app-bar>
 

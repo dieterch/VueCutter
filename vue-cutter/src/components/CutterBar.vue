@@ -97,6 +97,7 @@ function progress() {
 </script>
 
 <template>
+    <!-- ************** Dialog Start ************** -->
     <v-dialog
     v-model="dialog"
     persistent="true"
@@ -104,33 +105,37 @@ function progress() {
     >
         <v-card
             title="Cut Info"
+            color="dialogbackground"
             :subtitle="movie"
         >
             <v-card-text>
-                <v-table density="compact">
-                    <thead>
-                        <tr>
-                            <th class="text-left">Name</th>
-                            <th class="text-left">Wert</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr
+            <v-table 
+                density="compact"
+                theme="dark"        
+                >
+                <thead>
+                    <tr>
+                        <th class="text-left">Name</th>
+                        <th class="text-left">Wert</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr
                         v-for = "(val, key) in msg"
                         :key = "key"
-                        >
-                            <td>{{ key }}</td>
-                            <td>{{ val }}</td>
-                        </tr>
-                    </tbody>
-                </v-table>
+                    >
+                        <td>{{ key }}</td>
+                        <td>{{ val }}</td>
+                    </tr>
+                </tbody>
+            </v-table>
             </v-card-text>
             <v-divider></v-divider>
             <v-card-actions>
                 <v-spacer/>
                 <v-btn
                     class="ml-4"
-                    color="error"
+                    color="danger-button"
                     variant="flat"
                     prepend-icon="mdi-content-cut"
                     width="120px"
@@ -140,7 +145,7 @@ function progress() {
                 </v-btn>
                 <v-btn
                     class="ml-4"
-                    color="blue-darken-1"
+                    color="primary-button"
                     variant="flat"
                     prepend-icon="mdi-cancel"
                     width="120px"
@@ -152,10 +157,11 @@ function progress() {
             </v-card-actions>
         </v-card>
     </v-dialog>
+    <!-- ************** Dialog End ************** -->
 
     <v-app-bar
     name="cutter-bar" 
-    color="surface-light"
+    color="toolsbackground"
     density="compact"
     height="100px"
     :elevation="0"
@@ -166,7 +172,7 @@ function progress() {
                     v-if="t0_valid"
                     variant="flat"
                     class=""
-                    color="primary"
+                    color="primary-button"
                     size="default"
                     prepend-icon="mdi-align-horizontal-right"
                     block="true"
@@ -178,7 +184,7 @@ function progress() {
                     v-else
                     variant="flat"
                     class=""
-                    color="primary"
+                    color="primary-button"
                     size="default"
                     prepend-icon="mdi-align-horizontal-right"
                     block="true"
@@ -193,7 +199,7 @@ function progress() {
                     v-if="t1_valid"
                     variant="flat"
                     class="pr-2"
-                    color="primary"
+                    color="primary-button"
                     block="true"
                     size="default"
                     append-icon="mdi-align-horizontal-left"
@@ -205,7 +211,7 @@ function progress() {
                     v-else
                     variant="flat"
                     class="pr-2"
-                    color="primary"
+                    color="primary-button"
                     block="true"
                     size="default"
                     append-icon="mdi-align-horizontal-left"
@@ -219,8 +225,8 @@ function progress() {
                 <v-btn
                     v-if="cut_ok"
                     variant="flat"
-                    class=""
-                    color="primary"
+                    class="text--black"
+                    color="primary-button"
                     block="true"
                     size="default"
                     :append-icon=inplaceIcon
@@ -231,8 +237,8 @@ function progress() {
                 <v-btn
                     v-else
                     variant="flat"
-                    class=""
-                    color="tertiary"
+                    class="text--black"
+                    color="primary-button"
                     block="true"
                     size="default"
                     :append-icon=inplaceIcon
@@ -246,8 +252,8 @@ function progress() {
                 <v-btn
                     v-if="cut_ok"
                     variant="flat"
-                    class=""
-                    color="error"
+                    class="text--black"
+                    color="danger-button"
                     block="true"
                     size="default"
                     append-icon="mdi-content-cut"
@@ -258,8 +264,8 @@ function progress() {
                 <v-btn
                     v-else
                     variant="flat"
-                    class=""
-                    color="tertiary"
+                    class="text--black"
+                    color="danger-button"
                     block="true"
                     size="default"
                     append-icon="mdi-content-cut"
@@ -271,3 +277,9 @@ function progress() {
         </v-row>
 </v-app-bar>
 </template>
+
+<style scoped>
+    .text--black {
+        color: black  !important;
+    }
+</style>

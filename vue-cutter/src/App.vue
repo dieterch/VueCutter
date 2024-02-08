@@ -1,7 +1,4 @@
 <script setup>
-import { useTheme } from 'vuetify';
-
-const theme = useTheme();
 
 import MenuBar from './components/MenuBar.vue';
 import SideBar from './components/SideBar.vue';
@@ -16,11 +13,13 @@ import FooterArea from './components/FooterArea.vue';
       <MenuBar />
       <SideBar />
       <CutterBar />
-      <v-main>
+      <v-main
+        color="black"
+      >
         <v-container
-          class="pa-2"
+          class="pa-0"
           fluid
-          elevation="5"
+          elevation="0"
         >
           <MainArea />
         </v-container>
@@ -28,4 +27,3 @@ import FooterArea from './components/FooterArea.vue';
       <FooterArea />
   </v-app>
 </template>
-

@@ -61,6 +61,9 @@
 #                                                                                                          #
 # install tmux, copy _VueCutter to your home directory and start the worker with the following command:    #
 # . _VueCutter                                                                                             #
+# manually leave tmux with ctrl+b and d (bckend process stays running)                                     #
+# attach to tmux with tmux attach                                                                          #
+# stop each process with ctrl+c with tmux attached                                                         #
 ############################################################################################################
 ############################################################################################################
 
@@ -97,15 +100,15 @@ app.config.from_object(__name__)
 
 
 # uncomment to disable caching, which is useful for development when you are actively changing the frontend
-# @app.after_request
-# async def add_header(response):
-#     """
-#     Add headers to both force latest IE rendering engine or Chrome Frame,
-#     and also to cache the rendered page for x minutes.
-#     """
-#     response.headers['X-UA-Compatible'] = 'IE=Edge,chrome=1'
-#     response.headers['Cache-Control'] = 'public, max-age=0'
-#     return response
+@app.after_request
+async def add_header(response):
+    """
+    Add headers to both force latest IE rendering engine or Chrome Frame,
+    and also to cache the rendered page for x minutes.
+    """
+    response.headers['X-UA-Compatible'] = 'IE=Edge,chrome=1'
+    response.headers['Cache-Control'] = 'public, max-age=0'
+    return response
 
 # the functionality of the backend is provided by the Plexdata class, which is imported here
 # the Plexdata class is a wrapper around the PlexAPI and the Cutter class
@@ -239,7 +242,7 @@ if __name__ == '__main__':
 ****************************************************
 ''')
     try:
-        asyncio.run(app.run_task(host='0.0.0.0', port=5200, debug=False))
+        asyncio.run(app.run_task(host='0.0.0.0', port=5200, debug=True))
     finally:
         try:
             plexdata.cutter.umount()

@@ -12,27 +12,26 @@ import {hpos,
 </script>
 
 <template>
-    <div class="dbox dbox-main-detail" v-if="toggle_timeline">
-        <v-img
-            v-for="ival in ltimeline.larray"
-            :key="ival"
-            @click="hpos({val: ival, type:'abs'})"
-            :src="pos2fname(ival)" 
-            class="mx-auto shift_down" 
-            >
-        </v-img>  
-    </div>
-    <div 
-        class="dbox dbox-main"
-        style="background-color: rgb(90, 90, 90);"
-    >
-        <v-img 
-            class="mx-0 pa-1 shift_down"
-            :src="frame_name" 
-            alt="... loading ..."
-            >
-        </v-img>
-    </div>
+        <div class="dbox dbox-main-detail" v-if="toggle_timeline">
+            <v-img
+                v-for="ival in ltimeline.larray"
+                :key="ival"
+                @click="hpos({val: ival, type:'abs'})"
+                :src="pos2fname(ival)" 
+                class="mx-auto shift_down" 
+                >
+            </v-img>  
+        </div>
+        <div 
+            class="dbox dbox-main"
+        >
+            <v-img 
+                class="mx-0 pa-1 shift_down"
+                :src="frame_name" 
+                alt="... loading ..."
+                >
+            </v-img>
+        </div>
 </template>
 
 <style scoped>

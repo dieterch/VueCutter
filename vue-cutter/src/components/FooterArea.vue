@@ -6,7 +6,7 @@ import { progress_status } from '@/app';
 <template>
     <v-footer
             app
-            color="surface-light"
+            color="toolsbackground"
             class="mt-2"
     >
         <v-row

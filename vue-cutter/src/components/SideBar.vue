@@ -10,29 +10,29 @@ import {
 
 const buttons_left = computed(() => {
     return [
-        {name:"", icon:'mdi-format-horizontal-align-left', val:0, type:"abs", color:"primary"},
-        {name:" 15'", icon:'mdi-format-horizontal-align-left', val:15*60, type:"abs", color:"primary"},
-        {name:" 30'", icon: 'mdi-arrow-left-thin', val:-1800, type:"rel", color:"info"},
-        {name:" 10'", icon: 'mdi-arrow-left-thin', val:-600, type:"rel", color:"info"},
-        {name:" 5'", icon: 'mdi-arrow-left-thin', val:-5*60, type:"rel", color:"info"},
-        {name:" 1'", icon: 'mdi-arrow-left-thin', val:-60, type:"rel", color:"info"},
-        {name:' 10"', icon: 'mdi-arrow-left-thin', val:-10, type:"rel", color:"tertiary"},
-        {name:' 5"', icon: 'mdi-arrow-left-thin', val:-5, type:"rel", color:"tertiary"},
-        {name:' 1"', icon: 'mdi-arrow-left-thin', val:-1, type:"rel", color:"tertiary"},
+        {name:"", icon:'mdi-format-horizontal-align-left', val:0, type:"abs", color:"primary-button"},
+        {name:" 15'", icon:'mdi-format-horizontal-align-left', val:15*60, type:"abs", color:"primary-button"},
+        {name:" 30'", icon: 'mdi-arrow-left-thin', val:-1800, type:"rel", color:"secondary-button"},
+        {name:" 10'", icon: 'mdi-arrow-left-thin', val:-600, type:"rel", color:"secondary-button"},
+        {name:" 5'", icon: 'mdi-arrow-left-thin', val:-5*60, type:"rel", color:"secondary-button"},
+        {name:" 1'", icon: 'mdi-arrow-left-thin', val:-60, type:"rel", color:"secondary-button"},
+        {name:' 10"', icon: 'mdi-arrow-left-thin', val:-10, type:"rel", color:"tertiary-button"},
+        {name:' 5"', icon: 'mdi-arrow-left-thin', val:-5, type:"rel", color:"tertiary-button"},
+        {name:' 1"', icon: 'mdi-arrow-left-thin', val:-1, type:"rel", color:"tertiary-button"},
     ]
 })
 
 const buttons_right = computed(() => {
     return [
-        {name:'1" ', icon: 'mdi-arrow-right-thin', val:1, type:"rel", color:"tertiary"},
-        {name:'5" ', icon: 'mdi-arrow-right-thin', val:5, type:"rel", color:"tertiary"},                    
-        {name:'10" ', icon: 'mdi-arrow-right-thin', val:10, type:"rel", color:"tertiary"},                    
-        {name:"1' ", icon: 'mdi-arrow-right-thin', val:60, type:"rel", color:"info"},
-        {name:"5' ", icon: 'mdi-arrow-right-thin', val:5*60, type:"rel", color:"info"},
-        {name:"10' ", icon: 'mdi-arrow-right-thin', val:600, type:"rel", color:"info"},
-        {name:"30' ", icon: 'mdi-arrow-right-thin', val:1800, type:"rel", color:"info"},
-        {name:"15' ",icon: 'mdi-format-horizontal-align-right', val:pos_from_end(15*60), type:"abs", color:"primary"},
-        {name:"",icon: 'mdi-format-horizontal-align-right', val:pos_from_end(0), type:"abs", color:"primary"},
+        {name:'1" ', icon: 'mdi-arrow-right-thin', val:1, type:"rel", color:"tertiary-button"},
+        {name:'5" ', icon: 'mdi-arrow-right-thin', val:5, type:"rel", color:"tertiary-button"},                    
+        {name:'10" ', icon: 'mdi-arrow-right-thin', val:10, type:"rel", color:"tertiary-button"},                    
+        {name:"1' ", icon: 'mdi-arrow-right-thin', val:60, type:"rel", color:"secondary-button"},
+        {name:"5' ", icon: 'mdi-arrow-right-thin', val:5*60, type:"rel", color:"secondary-button"},
+        {name:"10' ", icon: 'mdi-arrow-right-thin', val:600, type:"rel", color:"secondary-button"},
+        {name:"30' ", icon: 'mdi-arrow-right-thin', val:1800, type:"rel", color:"secondary-button"},
+        {name:"15' ",icon: 'mdi-format-horizontal-align-right', val:pos_from_end(15*60), type:"abs", color:"primary-button"},
+        {name:"",icon: 'mdi-format-horizontal-align-right', val:pos_from_end(0), type:"abs", color:"primary-button"},
     ]
 })
 
@@ -70,47 +70,46 @@ function toggle_and_timeline(mypos) {
         name="side-bar"
         permanent
         location="right"
-        color="surface-light"
+        color="toolsbackground"
         :width="160"
     >
-        <v-row align="center" justify="center">
-            <v-col cols="4">
-                <v-btn 
-                    density="comfortable" 
-                    icon="mdi-arrow-left-bold-box-outline" 
-                    class="my-2 ml-3"
-                    color="surface-light"
-                    size="default"
-                    variant="flat"
-                    @click="page_minus_timeline()"
-                ></v-btn>
-            </v-col>
-
-            <v-col cols="4">
-                <v-btn 
-                    density="comfortable" 
-                    icon="mdi-filmstrip" 
-                    class="my-2 ml-2"
-                    color="surface-light"
-                    size="default"
-                    variant="flat"
-                    @click="toggle_and_timeline(lpos)"
-                ></v-btn>
-            </v-col>
-
-            <v-col cols="4">
-                <v-btn 
-                    density="comfortable" 
-                    icon="mdi-arrow-right-bold-box-outline" 
-                    class="my-2 mr-10"
-                    color="surface-light"
-                    size="default"
-                    variant="flat"
-                    @click="page_plus_timeline()"
-                ></v-btn>
-            </v-col>
+        <v-row 
+            justify="center"
+            class="py-2 px-2">
+                <v-col cols="4">
+                    <v-btn 
+                        no-density="comfortable" 
+                        icon="mdi-arrow-left-bold-box-outline" 
+                        class=""
+                        color="primary-button"
+                        size="x-small"
+                        variant="flat"
+                        @click="page_minus_timeline()"
+                    ></v-btn>
+                </v-col>
+                <v-col cols="4">
+                    <v-btn 
+                        no-density="comfortable" 
+                        icon="mdi-filmstrip" 
+                        class=""
+                        color="primary-button"
+                        size="x-small"
+                        variant="flat"
+                        @click="toggle_and_timeline(lpos)"
+                    ></v-btn>
+                </v-col>
+                <v-col cols="4">
+                    <v-btn 
+                        no-density="comfortable" 
+                        icon="mdi-arrow-right-bold-box-outline" 
+                        class=""
+                        color="primary-button"
+                        size="x-small"
+                        variant="flat"
+                        @click="page_plus_timeline()"
+                    ></v-btn>
+                </v-col>
         </v-row>
-        <v-divider></v-divider>
         <div class="no-text-center">
             <v-chip 
                 prepend-icon="mdi-movie-open" 
@@ -119,7 +118,7 @@ function toggle_and_timeline(mypos) {
                 size="default"
                 class="mt-2 ml-2"
                 >
-                {{ pos2str(lmovie_info.duration * 60) }} &nbsp;&nbsp;&nbsp; ({{ lmovie_info.duration }}')
+                <strong>{{ pos2str(lmovie_info.duration * 60) }} &nbsp;&nbsp;&nbsp; ({{ lmovie_info.duration }}')</strong>
             </v-chip>
             <v-chip 
                 prepend-icon="mdi-movie-open-edit" 
@@ -128,7 +127,9 @@ function toggle_and_timeline(mypos) {
                 size="default"
                 class="mt-0 ml-2"
                 >
-                {{ pos }} &nbsp;&nbsp;&nbsp; ({{ Math.trunc(lpos / 60) }}')
+                <strong>
+                    {{ pos }} &nbsp;&nbsp;&nbsp; ({{ Math.trunc(lpos / 60) }}')
+                </strong>
             </v-chip>
     </div>
 <v-divider></v-divider>
@@ -142,10 +143,13 @@ function toggle_and_timeline(mypos) {
                     :color="b.color"
                     class="ma-1" 
                     width="65px"
-                    :style="(-b.val == ltimeline.step) ? 'text-decoration: overline;' : 'text-decoration: none'" 
                     @click="hpos(b)"
-                >
-                    {{ b.name }}
+                    >
+                    <span
+                        :style="(-b.val == ltimeline.step) ? 'text-decoration: overline;' : 'text-decoration: none;'"                 
+                    >
+                        {{ b.name }}
+                    </span>
                 </v-btn>
             </div>
             
@@ -156,10 +160,13 @@ function toggle_and_timeline(mypos) {
                     :color="b.color"
                     class="ma-1" 
                     width="65px"
-                    :style="(b.val == ltimeline.step) ? 'text-decoration: overline;' : 'text-decoration: none'"
                     @click="hpos(b)"
-                >
-                {{ b.name }}
+                    >
+                    <span
+                        :style="(b.val == ltimeline.step) ? 'text-decoration: overline;' : 'text-decoration: none;'"                 
+                    >
+                        {{ b.name }}
+                    </span>
                 </v-btn>
             </div>            
         </div>
