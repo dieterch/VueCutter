@@ -1,6 +1,6 @@
 Quart VueCutter
 ========
-(c) 2024 Dieter Chvatal
+\(c\) 2024 Dieter Chvatal
 
 - This is a fullstack web-application with a backend in Python using the Quart framework, the backend is responsible for providing the frontend with the necessary data and for executing the cutting process. The cutting process is executed by an rq worker, which is started as a seperate process 'python worker.py'.
 - ffmpeg is required for picture extraction, the movies themselves are cut by stunningly fast mcut (and its preprocessor reconstruct_apsc). I forked it from **opendreambox/enigma2-plugin-reconstructapsc** (originally part of VU+ ecosystem), modified to run on 32-bit arm architecture. A big *Thank you* to the original author Anders Holst (aho@sics.se), coded 2009-12-14 in C++  
