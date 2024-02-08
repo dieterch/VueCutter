@@ -1,23 +1,22 @@
-Quart VueCutter (c)2024 Dieter Chvatal
+Quart VueCutter
 ========
+(c)2024 Dieter Chvatal
 
-- This is the backend of the Vue Quart WebCutter. It is a simple wrapper around the PlexAPI and the Cutter class. 
-- The backend is written in Python and uses the Quart framework. The backend is responsible for providing the frontend with the necessary data and for executing the cutting process. 
-- The cutting process is executed by an rq worker, which is started as a seperate process worker.py. the rq quue requires a redis server.
-- The redis server is provided by a docker container (specifying 'redispw' in the docker-compose.yml file). The redis server is used to store the cutting progress. 
-- A Plex Server in the local network is required. The PlexAPI is used to access the Plex Server. 
+- This is a fullstack web-application with a backend in Python using the Quart framework, the backend is responsible for providing the frontend with the necessary data and for executing the cutting process. The cutting process is executed by an rq worker, which is started as a seperate process 'python worker.py'. the rq quue requires a redis server.
+- The redis server is provided by a docker container (specifying 'redispw' in the docker-compose.yml file).
+- The frontend consists of a vuetify-vue SPA. The compiled application is delivered by the Quart ASGI Webserver, so rest interface and frontend share one 'ip:port'. 
+- A Plex Server in the local network is obviously required. python PlexAPI package is used to access the Plex Server. 
 
 Installation
 ------------
-To configure this application, you have to create a config.toml file in the same directory as this file
-with the following content: 
+To configure this application, you have to create a **config.toml** file in the same directory as this file with the following content: 
 
-```toml
-fileserver = 'xx.xx.xx.xx'
-plexurl = 'http://xx.xx.xx.xx:32400'
-plextoken = 'sJFCVA4xxxxxxxxxxx'
-redispw = '63nxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
-```
+:: 
+  fileserver = 'xx.xx.xx.xx'
+  plexurl = 'http://xx.xx.xx.xx:32400'
+  plextoken = 'xxxxxxxxxxxxxxxxxx'
+  redispw = 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
+::
 
 **Windows:**
 
