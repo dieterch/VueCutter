@@ -183,13 +183,24 @@ export const t0_valid = ref(false)
 export const t1 = ref("01:00:00")
 export const t1_valid = ref(false)
 export const inplace = ref(true) 
-
+export const cutterdialog = ref(false)
+export const cutterdialog_enable_cut = ref(false)
+export const cutlist = ref([])
+export const lmovie_cut_info = ref({})
+export const cutmsg = ref('')
 
 export function reset_t0_t1() {
     t0.value = "00:00:00"
     t0_valid.value = false 
     t1.value = "01:00:00"
     t1_valid.value = false                 
+}
+
+export function reset_cutlist() {
+    reset_t0_t1();
+    cutlist.value = []
+    cutmsg.value = ''
+    cutterdialog.value = false
 }
 
 // computed:
@@ -207,9 +218,6 @@ export const movie = computed({
         lmovie.value = val
     }
 })
-
-
-
 
 // methods:
 export async function load_movie_info() {

@@ -1,6 +1,7 @@
 <script setup>
 import { ref, computed } from 'vue'
 import axios from 'axios';
+import CutterDialog from './CutterDialog.vue';
 
 import {
     protocol, host, 
@@ -9,6 +10,7 @@ import {
     inplace,
     ltimeline,
     movie, lmovie, section,
+    cutlist, cutterdialog, cutterdialog_enable_cut, cutmsg, lmovie_cut_info,
     hpos, progress_status } from '@/app';
 
 const cut_ok = computed(() => {
@@ -26,9 +28,43 @@ function toggle_inplace() {
         inplace.value = !inplace.value
     }
 
-const lmovie_cut_info = ref({})
-const dialog = ref(false);
-const msg = ref('')
+
+function add_to_cutlist(interval) {
+    // check if interval is already in cutlist
+    // if not, add it
+    if (cutlist.value.some((e) => e.t0 == interval.t0 && e.t1 == interval.t1)) {
+        console.log("Interval already in cutlist")
+    } else {
+        cutlist.value.push(interval)
+    }
+    console.log("add_to_cutlist", cutlist.value)
+}
+
+function validate_cutlist() {
+    // check if t1 > t0 for all intervals in cutlist
+    const isValidCutlist = cutlist.value.every((interval) => interval.t1 > interval.t0);
+    // sort cutlist intervals by t0 in ascending order
+    cutlist.value.sort((a, b) => a.t0.localeCompare(b.t0));
+    // combine intervals that overlap
+    cutlist.value = cutlist.value.reduce((acc, interval) => {
+        if (acc.length === 0) return [interval];
+        const lastInterval = acc[acc.length - 1];
+        if (interval.t0 <= lastInterval.t1) {
+            lastInterval.t1 = interval.t1;
+        } else {
+            acc.push(interval);
+        }
+        return acc;
+    }, []);
+    // check if intervals still overlap
+    const isNotoverlappingCutlist = cutlist.value.every((interval, index, array) => {
+        if (index === 0) return true;
+        return interval.t0 > array[index - 1].t1;
+    });
+    //if all checks pass, return true
+    return isValidCutlist && isNotoverlappingCutlist;
+    // else return false and disable cut button in CutterDialog.vue
+}
 
 async function cut_info() {
     const endpoint = `${protocol.value}//${host.value}/movie_cut_info`
@@ -36,129 +72,41 @@ async function cut_info() {
         const response = await axios.get(endpoint, { headers: { 'Content-type': 'application/json', }});
         lmovie_cut_info.value = response.data;
         //console.log("in movie_cut_info", this.lmovie_cut_info)
-        msg.value = {
+        // store t0 and t1 in cutlist if not already there
+        add_to_cutlist({t0: t0.value, t1: t1.value})
+        cutterdialog_enable_cut.value = validate_cutlist()
+        cutmsg.value = {
             section: section.value,
             movie: lmovie.value,
             In: t0.value,
             Out: t1.value,
+            cutlist: cutlist.value,
             Inplace: inplace.value,
             ".ap .sc Files ?": lmovie_cut_info.value.apsc,
             "_cut File ?": lmovie_cut_info.value.cutfile
         }
-        console.log(msg.value)
-        dialog.value = true
+        console.log(cutmsg.value)
+        cutterdialog.value = true
     } catch (e) {
         console.log(`${endpoint} \n` + String(e));
         alert(`${endpoint} \n` + String(e));
     }
 }
 
-async function do_cut() {
-    const endpoint = `${protocol.value}//${host.value}/cut2`
-    try {
-        const response = await axios.post(endpoint,
-        {   
-            "section": section.value, 
-            "movie_name": lmovie.value,
-            "ss": t0.value,
-            "to": t1.value,
-            "inplace": inplace.value,
-            "etaest": lmovie_cut_info.value.eta
-        },
-        { headers: { 'Content-type': 'application/json',}});
-        console.log(response.data)
-        progress()
-        dialog.value = false
-    } catch (e) {
-        console.log(`${endpoint} \n` + String(e));
-        alert(`${endpoint} \n` + String(e));
-    }
-}
-
-function progress() {
-    const endpoint = `${protocol.value}//${host.value}/progress`
-    let timer_id = setInterval( async () => {
-        try {
-            const response = await axios.get(endpoint, { headers: { 'Content-type': 'application/json', }});
-            progress_status.value = response.data
-            console.log(progress_status.value)
-            if (progress_status.value.status == "idle") {
-                console.log("done")
-                clearInterval(timer_id)
-            }
-        } catch (e) {
-            console.log(`${endpoint} \n` + String(e));
-            alert(`${endpoint} \n` + String(e));
-        }
-    }, 5000)
-    console.log("progress", timer_id)
+function extend_cutlist() {
+    // store t0 and t1 in cutlist if not already there
+    add_to_cutlist({t0: t0.value, t1: t1.value})
+    // set t0_valid, t1_valid to false
+    t0_valid.value = false
+    t1_valid.value = false
+    // alert("extend_cutlist", cutlist.value)
+    console.log("extend_cutlist", cutlist.value)
 }
 
 </script>
 
 <template>
-    <!-- ************** Dialog Start ************** -->
-    <v-dialog
-    v-model="dialog"
-    persistent="true"
-    width="auto"
-    >
-        <v-card
-            title="Cut Info"
-            color="dialogbackground"
-            :subtitle="movie"
-        >
-            <v-card-text>
-            <v-table 
-                density="compact"
-                theme="dark"        
-                >
-                <thead>
-                    <tr>
-                        <th class="text-left">Name</th>
-                        <th class="text-left">Wert</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr
-                        v-for = "(val, key) in msg"
-                        :key = "key"
-                    >
-                        <td>{{ key }}</td>
-                        <td>{{ val }}</td>
-                    </tr>
-                </tbody>
-            </v-table>
-            </v-card-text>
-            <v-divider></v-divider>
-            <v-card-actions>
-                <v-spacer/>
-                <v-btn
-                    class="ml-4"
-                    color="danger-button"
-                    variant="flat"
-                    prepend-icon="mdi-content-cut"
-                    width="120px"
-                    @click="do_cut"
-                >
-                Cut
-                </v-btn>
-                <v-btn
-                    class="ml-4"
-                    color="primary-button"
-                    variant="flat"
-                    prepend-icon="mdi-cancel"
-                    width="120px"
-                    @click="dialog = false"
-                >
-                Cancel
-                </v-btn>
-                <v-spacer/>
-            </v-card-actions>
-        </v-card>
-    </v-dialog>
-    <!-- ************** Dialog End ************** -->
-
+    <CutterDialog />
     <v-app-bar
     name="cutter-bar" 
     color="toolsbackground"
@@ -220,7 +168,18 @@ function progress() {
                     -- : -- : --
                 </v-btn>
             </v-col>
-            
+
+            <v-btn
+                v-if="t0_valid & t1_valid"
+                icon="mdi-plus" 
+                size="small" 
+                density="compact" 
+                align="center"
+                class="mt-3"
+                @click="extend_cutlist"
+            >
+            </v-btn>
+
             <v-col>
                 <v-btn
                     v-if="cut_ok"

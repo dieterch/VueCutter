@@ -40,6 +40,7 @@ import { progress_status } from '@/app';
                     :model-value="progress_status.apsc_progress"
                     color="green"
                     height="12"
+                    class="mb-2"
                 >
                 <small>{{ progress_status.apsc_progress }}%</small>
                 </v-progress-linear>
@@ -50,6 +51,7 @@ import { progress_status } from '@/app';
                     :model-value="progress_status.cut_progress"
                     color="primary"
                     height="12"
+                    class="mb-2"
                 >
                 <small>{{ progress_status.cut_progress }}%</small>
             </v-progress-linear>
