@@ -262,22 +262,20 @@ class Plexdata:
     async def _cut2(self, req):
         section_name = req['section']
         movie_name = req['movie_name']
-        ss = req['ss']
-        to = req['to']
+        cutlist = req['cutlist']
         inplace = req['inplace']
         s = await self._update_section(section_name)
         m = await self._update_movie(movie_name)        
-        res = f"Queue Cut From section '{s}', cut '{m.title}', In {ss}, Out {to}, inplace={inplace}"
+        res = f"Queue Cut From section '{s}', cut '{m.title}', cutlist{cutlist}, inplace={inplace}"
         try:
             mm = self.plex.MovieData(m)
             print("will cut now:\n",res)
-            job = self.q.enqueue_call(self.cutter.cut, args=(mm,ss,to,inplace,))
+            job = self.q.enqueue_call(self.cutter.cut, args=(mm,cutlist,inplace,))
             res = {
                 'Section': s.title,
                 'Duration Raw': mm.duration // 60000,
-                'Duration Cut': self.cutter.cutlength(ss,to),
-                'In': ss,
-                'Out': to,
+                'Duration Cut': sum([self.cutter.cutlength(cut['t0'],cut['t1']) for cut in cutlist]),
+                'Cutlist': cutlist,
                 'Inplace': inplace,
                 '.ap .sc Files': self.cutter._apsc(m),
                 'cut File': self.cutter._cutfile(m)

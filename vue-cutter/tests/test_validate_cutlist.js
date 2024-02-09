@@ -76,11 +76,11 @@ function validate_cutlist(cutlist) {
 }
 
 console.table([
-    { "before" : cutlist1, "Cutlist": cutlist1_text, "IsValid": validate_cutlist(cutlist1), 'after': cutlist1},
-    { "before" : cutlist2, "Cutlist": cutlist2_text, "IsValid": validate_cutlist(cutlist2), 'after': cutlist2},
-    { "before" : cutlist3, "Cutlist": cutlist3_text, "IsValid": validate_cutlist(cutlist3), 'after': cutlist3},
-    { "before" : cutlist4, "Cutlist": cutlist4_text, "IsValid": validate_cutlist(cutlist4), 'after': cutlist4},
-    { "before" : cutlist5, "Cutlist": cutlist5_text, "IsValid": validate_cutlist(cutlist5), 'after': cutlist5},
-    { "before" : cutlist6, "Cutlist": cutlist6_text, "IsValid": validate_cutlist(cutlist6), 'after': cutlist6},
-    { "before" : cutlist7, "Cutlist": cutlist7_text, "IsValid": validate_cutlist(cutlist7), 'after': cutlist7}
+    { "before" : cutlist1.value, "Cutlist": cutlist1_text, "IsValid": validate_cutlist(cutlist1), 'after': cutlist1.value},
+    { "before" : cutlist2.value, "Cutlist": cutlist2_text, "IsValid": validate_cutlist(cutlist2), 'after': cutlist2.value},
+    { "before" : cutlist3.value, "Cutlist": cutlist3_text, "IsValid": validate_cutlist(cutlist3), 'after': cutlist3.value},
+    { "before" : cutlist4.value, "Cutlist": cutlist4_text, "IsValid": validate_cutlist(cutlist4), 'after': cutlist4.value},
+    { "before" : cutlist5.value, "Cutlist": cutlist5_text, "IsValid": validate_cutlist(cutlist5), 'after': cutlist5.value},
+    { "before" : cutlist6.value, "Cutlist": cutlist6_text, "IsValid": validate_cutlist(cutlist6), 'after': cutlist6.value},
+    { "before" : cutlist7.value, "Cutlist": cutlist7_text, "IsValid": validate_cutlist(cutlist7), 'after': cutlist7.value}
 ]);

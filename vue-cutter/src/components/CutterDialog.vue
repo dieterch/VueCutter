@@ -6,7 +6,7 @@ import {
     inplace, lmovie, movie, section,
     t0, t1, lmovie_cut_info,
     cutterdialog, cutterdialog_enable_cut, 
-    reset_cutlist, cutmsg, progress_status
+    reset_cutlist, cutlist, cutmsg, progress_status
 } from '@/app';
 
 async function do_cut() {
@@ -16,8 +16,7 @@ async function do_cut() {
         {   
             "section": section.value, 
             "movie_name": lmovie.value,
-            "ss": t0.value,
-            "to": t1.value,
+            "cutlist": cutlist.value,
             "inplace": inplace.value,
             "etaest": lmovie_cut_info.value.eta
         },

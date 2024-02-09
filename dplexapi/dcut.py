@@ -88,12 +88,12 @@ class CutterInterface:
 		"""
 		return self._foldername(movie) + self._tempfilename(movie)
 
-	def _movie_stats(self, movie, ss, to, inplace=False):
+	def _movie_stats(self, movie, cutlist, inplace=False):
 		"""
 		return TS Progress in percent 
 		"""
 		self.mount(movie)
-		cl = self.cutlength(ss,to)
+		cl = sum([self.cutlength(cut['t0'],cut['t1']) for cut in cutlist])
 		ml = (movie.duration / 60000)
 		faktor = cl/ml
 		moviesize = os.path.getsize(self._pathname(movie))
@@ -111,12 +111,12 @@ class CutterInterface:
 		progress = int(progress * 100) if progress < 1.0 else 100
 		return progress
 
-	def _apsc_stats(self, movie, ss, to, inplace=False):
+	def _apsc_stats(self, movie, cutlist, inplace=False):
 		"""
 		return AP Progress in percent 
 		"""
 		self.mount(movie)
-		cl = self.cutlength(ss,to)
+		cl = sum([self.cutlength(cut['t0'],cut['t1']) for cut in cutlist])
 		ml = (movie.duration / 60000)
 		faktor = cl/ml
 		moviesize = os.path.getsize(self._pathname(movie))
@@ -333,22 +333,31 @@ text='{(ftime[:2]+chr(92)+':'+ftime[3:5]+chr(92)+':'+ftime[-2:]).replace('0','O'
 		finally:
 			print(f"'{self._filename(movie)}', *.ap und *.sp Files wurden rekonstruiert.")
 
-	def _mcut(self, movie, ss, to, inplace = False):
+	def _mcut(self, movie, cutlist, inplace = False):
 		print()
-		print(f"'{self._filename(movie)}' wird geschnitten. -]+{ss},{to}+[-")
+		print(f"'{self._filename(movie)}' wird geschnitten. -]+{cutlist}+[- ")
 		if inplace:
-			exc_lst = [self._mcut_binary,"-r","-n",f"'{movie.title}'","-d", f"'{movie.summary}'",f"{self._pathname(movie)}","-c",ss,to]
+			nexc_lst = [self._mcut_binary,"-r","-n",f"'{movie.title}'","-d", f"'{movie.summary}'",f"{self._pathname(movie)}","-c"]
+   
 		else:
-			exc_lst = [self._mcut_binary,"-n",f"'{movie.title}'","-d", f"'{movie.summary}'",f"{self._pathname(movie)}","-c",ss,to]
+			nexc_lst = [self._mcut_binary,"-n",f"'{movie.title}'","-d", f"'{movie.summary}'",f"{self._pathname(movie)}","-c"]
+   
+		for cut in cutlist:
+			for key, value in cut.items():
+					nexc_lst.append(value)
+
 		try:
-			res = subprocess.check_output(exc_lst)
+			print("---------------------------------")
+			print(f"nexc_lst: {nexc_lst}")
+			print("---------------------------------")
+			res = subprocess.check_output(nexc_lst)
 			res = res.decode('utf-8')
 			print(f"'{self._filename(movie)}' wurde geschnitten.")
 			return res
 		except subprocess.CalledProcessError as e:
 			raise e
 
-	def cut(self, movie, ss, to, inplace=False):
+	def cut(self, movie, cutlist, inplace=False):
 		t0 = time.time()
 		t1 = time.time() #initialize t1, in case .ap files already exist ...
 		restxt = 'cut started ... \n'
@@ -388,7 +397,7 @@ text='{(ftime[:2]+chr(92)+':'+ftime[3:5]+chr(92)+':'+ftime[-2:]).replace('0','O'
 				raise e
 		
 		try:
-			res = self._mcut(movie,ss,to,inplace)
+			res = self._mcut(movie,cutlist,inplace)
 			t2 = time.time()
 
 			if ((inplace == True) and (os.path.exists(self._cutname(movie)))):

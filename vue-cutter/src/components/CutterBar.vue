@@ -63,7 +63,6 @@ function validate_cutlist() {
     });
     //if all checks pass, return true
     return isValidCutlist && isNotoverlappingCutlist;
-    // else return false and disable cut button in CutterDialog.vue
 }
 
 async function cut_info() {
@@ -78,8 +77,6 @@ async function cut_info() {
         cutmsg.value = {
             section: section.value,
             movie: lmovie.value,
-            In: t0.value,
-            Out: t1.value,
             cutlist: cutlist.value,
             Inplace: inplace.value,
             ".ap .sc Files ?": lmovie_cut_info.value.apsc,
