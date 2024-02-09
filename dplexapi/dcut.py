@@ -336,15 +336,18 @@ text='{(ftime[:2]+chr(92)+':'+ftime[3:5]+chr(92)+':'+ftime[-2:]).replace('0','O'
 	def _mcut(self, movie, cutlist, inplace = False):
 		print()
 		print(f"'{self._filename(movie)}' wird geschnitten. -]+{cutlist}+[- ")
-		if inplace:
-			nexc_lst = [self._mcut_binary,"-r","-n",f"'{movie.title}'","-d", f"'{movie.summary}'",f"{self._pathname(movie)}","-c"]
+  
+		nexc_lst = [self._mcut_binary,"-n",f"'{movie.title}'","-d", f"'{movie.summary}'",f"{self._pathname(movie)}","-c"] + [v for c in cutlist for k,v in c.items()]
+		nexc_lst = nexc_lst.insert(1,'-r') if inplace else nexc_lst
+  
+		# if inplace:
+		# 	nexc_lst = [self._mcut_binary,"-r","-n",f"'{movie.title}'","-d", f"'{movie.summary}'",f"{self._pathname(movie)}","-c"]
+		# else:
+		# 	nexc_lst = [self._mcut_binary,"-n",f"'{movie.title}'","-d", f"'{movie.summary}'",f"{self._pathname(movie)}","-c"]
    
-		else:
-			nexc_lst = [self._mcut_binary,"-n",f"'{movie.title}'","-d", f"'{movie.summary}'",f"{self._pathname(movie)}","-c"]
-   
-		for cut in cutlist:
-			for key, value in cut.items():
-					nexc_lst.append(value)
+		# for cut in cutlist:
+		# 	for key, value in cut.items():
+		# 			nexc_lst.append(value)
 
 		try:
 			print("---------------------------------")
