@@ -121,7 +121,7 @@ class CutterInterface:
 		faktor = cl/ml
 		moviesize = os.path.getsize(self._pathname(movie))
 		targetsize = faktor * moviesize * 0.064 / 1000
-		print(f"moviesize: {moviesize} targetsize: {targetsize} faktor: {faktor} cl: {cl} ml: {ml}")
+		print(f"moviesize: {moviesize} targetsize: {targetsize:.0f} faktor: {faktor:.4f} cl: {cl} ml: {ml:.1f}")
 		if inplace:
 			if os.path.exists(self._pathname(movie)+'.ap'):
 				progress = os.path.getsize(self._pathname(movie)+'.ap')/targetsize
