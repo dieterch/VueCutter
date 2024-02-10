@@ -338,7 +338,8 @@ text='{(ftime[:2]+chr(92)+':'+ftime[3:5]+chr(92)+':'+ftime[-2:]).replace('0','O'
 		print(f"'{self._filename(movie)}' wird geschnitten. -]+{cutlist}+[- ")
   
 		nexc_lst = [self._mcut_binary,"-n",f"'{movie.title}'","-d", f"'{movie.summary}'",f"{self._pathname(movie)}","-c"] + [v for c in cutlist for k,v in c.items()]
-		nexc_lst = nexc_lst.insert(1,'-r') if inplace else nexc_lst
+		if inplace:
+			nexc_lst.insert(1,'-r')
   
 		# if inplace:
 		# 	nexc_lst = [self._mcut_binary,"-r","-n",f"'{movie.title}'","-d", f"'{movie.summary}'",f"{self._pathname(movie)}","-c"]
@@ -356,6 +357,55 @@ text='{(ftime[:2]+chr(92)+':'+ftime[3:5]+chr(92)+':'+ftime[-2:]).replace('0','O'
 			res = subprocess.check_output(nexc_lst)
 			res = res.decode('utf-8')
 			print(f"'{self._filename(movie)}' wurde geschnitten.")
+			return res
+		except subprocess.CalledProcessError as e:
+			raise e
+
+	def _ffmpegjoin(self, movie, cutlist, inplace = False):
+        # ffmpeg -i 'concat:part1.ts|part2.ts' -c copy out.ts
+		if len(cutlist) > 1:
+			print()
+			print(f"'{self._filename(movie)}' wird mit ffmpeg zusammengefügt. -]+{cutlist}+[- ")
+			exc_lst = [self._ffmpeg_binary,"-y","-hide_banner","-loglevel","fatal", "-i"]
+			file_lst = [f"{self._foldername(movie)}part{i}.ts" for i in range(len(cutlist))]
+			exc_lst += [f"concat:" + '|'.join(file_lst),"-c","copy",f"{self._cutname(movie)}.ffmpeg.ts"]
+			try:
+				print("---------------------------------")
+				print(f"exc_lst: {exc_lst}")
+				print("---------------------------------")
+				res = subprocess.check_output(exc_lst)
+				res = res.decode('utf-8')
+				print(f"'{self._filename(movie)}' wurde mit ffmeg zusammengefügt.")
+				# delete part*.ts files
+				for i in range(len(cutlist)):
+					os.remove(f"{self._foldername(movie)}part{i}.ts")
+				return res
+			except subprocess.CalledProcessError as e:
+				raise e
+		else:
+			# rename part0.ts to f"{self._cutname(movie)}.ffmpeg.ts"
+			try:
+				os.rename(f"{self._foldername(movie)}part0.ts", f"{self._cutname(movie)}.ffmpeg.ts")
+				return f"{self._filename(movie)} wurde umbenannt."
+			except FileNotFoundError as e:
+				raise e
+
+	def _ffmpegcut(self, movie, cutlist, inplace = False):
+		print()
+		print(f"'{self._filename(movie)}' wird mit ffmpeg geschnitten. -]+{cutlist}+[- ")
+		exc_lst = [self._ffmpeg_binary,"-y","-hide_banner","-loglevel","fatal"]
+		map_lst = []
+		for i, cut  in enumerate(cutlist):
+			exc_lst += ["-ss",f"{cut['t0']}","-to",f"{cut['t1']}","-i",f"{self._pathname(movie)}"]
+			map_lst += [f"-map",f"{i}:v","-map",f"{i}:a","-map",f"{i}:s?", "-c", "copy", f"{self._foldername(movie)}part{i}.ts"]
+		exc_lst += map_lst
+		try:
+			print("---------------------------------")
+			print(f"exc_lst: {exc_lst}")
+			print("---------------------------------")
+			res = subprocess.check_output(exc_lst)
+			res = res.decode('utf-8')
+			print(f"'{self._filename(movie)}' wurde mit ffmeg geschnitten.")
 			return res
 		except subprocess.CalledProcessError as e:
 			raise e
@@ -400,6 +450,14 @@ text='{(ftime[:2]+chr(92)+':'+ftime[3:5]+chr(92)+':'+ftime[-2:]).replace('0','O'
 				raise e
 		
 		try:
+			res = self._ffmpegcut(movie,cutlist,inplace)
+			print("---------------------------------")
+			print("FFMPEG cut result: ", res)
+			print("---------------------------------")
+			res3 = self._ffmpegjoin(movie,cutlist,inplace)
+			print("---------------------------------")
+			print("FFMPEG cut result: ", res3)
+			print("---------------------------------")
 			res = self._mcut(movie,cutlist,inplace)
 			t2 = time.time()
 
@@ -421,7 +479,7 @@ text='{(ftime[:2]+chr(92)+':'+ftime[3:5]+chr(92)+':'+ftime[-2:]).replace('0','O'
 			restxt += f"Ges. Zeit: {(t2 - t0):7.0f} sec.\n\n"
 			resdict.update({
 				'McutTime': (t2 - t1),
-				'TotalTime': (t2 - t0)
+				'TotalTime': (t2 - t0),
 			})
 			print(f"elapsed time: {(t2 - t0):7.0f} sec.")
 			if self.target != "":
