@@ -5,7 +5,11 @@ import SideBar from './components/SideBar.vue';
 import CutterBar from './components/CutterBar.vue';
 import MainArea from './components/MainArea.vue';
 import FooterArea from './components/FooterArea.vue';
+import { useTheme } from 'vuetify'
+import { get_themecookie } from '@/app';
 
+const theme = useTheme()
+theme.global.name.value = get_themecookie()
 </script>
 
 <template>

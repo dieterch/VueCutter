@@ -19,7 +19,7 @@ import { createVuetify } from 'vuetify'
 }) */
 
 
-const myDarkTheme = {
+const DarkTheme = {
   dark: true,
   colors: {
     background: '#000000',
@@ -59,7 +59,7 @@ const myDarkTheme = {
   }
 }
 
-const myLightTheme = {
+const LightTheme = {
   dark: false,
   colors: {
     background: '#191818E0',
@@ -99,7 +99,7 @@ const myLightTheme = {
   }
 }
 
-const myTestTheme = {
+const TestTheme = {
   dark: false,
   colors: {
     background: '#191818E0',
@@ -139,13 +139,15 @@ const myTestTheme = {
   }
 }
 
+
+
 export default createVuetify({
   theme: {
-    defaultTheme: 'myDarkTheme',
+    defaultTheme: 'light',
     themes: {
-      myLightTheme,
-      myDarkTheme,
-      myTestTheme
+      LightTheme,
+      DarkTheme,
+      TestTheme
     },
   },
 })

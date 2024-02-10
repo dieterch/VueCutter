@@ -1,6 +1,7 @@
 <script setup>
 import { ref, computed } from 'vue'
 import axios from 'axios';
+import { useTheme } from 'vuetify'
 
 import {host, protocol, str2pos, lpos, 
         section_type,
@@ -10,8 +11,11 @@ import {host, protocol, str2pos, lpos,
         series, serie, 
         toggle_timeline, 
         timeline, 
-        reset_t0_t1
+        reset_t0_t1,
+        set_themecookie
 } from '@/app';
+
+const theme = useTheme()
 
 // methods:
 async function load_selection() {
@@ -81,17 +85,13 @@ function onChangeMovie() {
     console.log("onChangeMovie")
 }   
 
-
-import { useTheme } from 'vuetify'
-
-const theme = useTheme()
-
-function setTheme (themeName) { 
-  theme.global.name.value = themeName
+function setTheme (themeName) {
+    set_themecookie(themeName) 
+    theme.global.name.value = themeName
 }
 
 function filterTheme (themeName) {
-  return ((themeName[0] != 'dark') & (themeName[0] != 'light'))
+    return ((themeName[0] != 'dark') & (themeName[0] != 'light'))
 }
 
 

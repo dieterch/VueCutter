@@ -1,3 +1,9 @@
+// ************************************************************************************************
+//
+// Quart VueCutter (c)2024 Dieter Chvatal frontend
+//
+// ************************************************************************************************
+
 import { ref, computed } from 'vue'
 import axios from 'axios';
 
@@ -5,12 +11,32 @@ import axios from 'axios';
 export const host = ref(window.location.host)
 export const protocol = ref(window.location.protocol)    
 
+// ************************************************************************************************
+// general Tools
+// ************************************************************************************************
+
 // Leading Zero's
 export const zeroPad = (num, places) => String(num).padStart(places, '0')
 
+export function setCookie(id, value) { 
+    document.cookie = id + '=' + value; 
+}
+
+export function getCookie(id) {
+    let value = document.cookie.match('(^|;)?' + id + '=([^;]*)(;|$)');
+    return value ? unescape(value[2]) : null;
+ }
+
+export function deleteCookie(id) {
+    document.cookie = id + '=;';
+
+ }
+
+export function get_themecookie() { return getCookie('theme') || 'light' }
+export function set_themecookie(mytheme) { return setCookie('theme', mytheme) }
 
 // ************************************************************************************************
-// posistion in movie, get frame @ position
+// position functions
 // ************************************************************************************************
 export const lpos = ref(0)
 
@@ -28,48 +54,6 @@ export const pos = computed({
         }
 })
 
-export const frame_name = ref('');
-export async function get_frame(pos) {
-    const endpoint = `${protocol.value}//${host.value}/frame`
-    // console.log(`in load frame, Position ${pos}`)
-    try {
-        const response = await axios.post(endpoint,
-            { "pos_time": pos, "movie_name": movie.value },
-            { headers: { 'Content-type': 'application/json', }});
-        frame_name.value = response.data.frame + '?' + String(Math.random());
-        // toggle_timeline.value = false  
-    } catch (e) {
-        console.log(`${endpoint} \n` + String(e));
-        alert(`${endpoint} \n` + String(e));
-    }
-}
-
-export const hpos = (b) => {
-    // this.toggle_timeline = false 
-    if (b.type == "rel") {
-        set_timeline_step(Math.abs(b.val))
-        if (!toggle_timeline.value) {
-            lpos.value += b.val
-            lpos.value = posvalid(lpos.value)
-            // console.log(this.lpos)
-        }
-        timeline(lpos.value)                
-    } else if (b.type == "abs") {
-        //console.log('in hpos type abs', b)
-        lpos.value = b.val
-        timeline(lpos.value)                 
-    } else if (b.type == "t0")  {
-        t0.value = pos.value
-        t0_valid.value = true 
-    }else if (b.type == "t1")  {
-        t1.value = pos.value
-        t1_valid.value = true 
-    } else {
-        alert("unknown type in hpos")
-    }
-
-}
-
 // seconds to 'hh:mm:ss' string
 export const pos2str = (pos) => {
     pos = (pos >= 0) ? pos : 0 
@@ -82,18 +66,19 @@ export const str2pos = (st) => {
     return erg
 }
 
+// position from end, input seconds
 export const pos_from_end = (dsec) => {
     let val = Math.trunc(lmovie_info.value.duration_ms / 1000 - dsec) 
     val = (val < 0) ? 0 : val
     return val
 }
 
+// check if position is valid
 export const posvalid = (val) => {
     val = (val >=0 ) ? val : -998 //0
     val = (val <= pos_from_end(0)) ? val : -998 //this.pos_from_end(0)
     return val
 }
-
 
 
 // ************************************************************************************************
@@ -153,7 +138,6 @@ export const timeline = async (mypos) => {
                 let val = mypos + p*Math.abs(ltimeline.value.step)
                 val = posvalid(val)
                 ltimeline.value.larray.push(val)
-                // sarray.push(pos2fname(val))
             }
             //console.log(ltimeline.value.larray)
             //console.log(sarray)
@@ -165,18 +149,9 @@ export const timeline = async (mypos) => {
     }
 }
 
-
-export const sections = ref([])
-export const section = ref('')
-export const section_type = ref('')
-export const movies = ref([])
-export const lmovie = ref('')
-export const seasons = ref([])
-export const season = ref('')
-export const series = ref([])
-export const serie = ref('')
-
-export const lmovie_info = ref({})
+// ************************************************************************************************
+// cutting functions
+// ************************************************************************************************
 
 export const t0 = ref("00:00:00")
 export const t0_valid = ref(false)
@@ -189,6 +164,34 @@ export const cutlist = ref([])
 export const lmovie_cut_info = ref({})
 export const cutmsg = ref('')
 
+// btn click function for all cutting/position related buttons
+export const hpos = (b) => {
+    // this.toggle_timeline = false 
+    if (b.type == "rel") {
+        set_timeline_step(Math.abs(b.val))
+        if (!toggle_timeline.value) {
+            lpos.value += b.val
+            lpos.value = posvalid(lpos.value)
+            // console.log(this.lpos)
+        }
+        timeline(lpos.value)                
+    } else if (b.type == "abs") {
+        //console.log('in hpos type abs', b)
+        lpos.value = b.val
+        timeline(lpos.value)                 
+    } else if (b.type == "t0")  {
+        t0.value = pos.value
+        t0_valid.value = true 
+    }else if (b.type == "t1")  {
+        t1.value = pos.value
+        t1_valid.value = true 
+    } else {
+        alert("unknown type in hpos")
+    }
+
+}
+
+// reset the cutting interval buttons
 export function reset_t0_t1() {
     t0.value = "00:00:00"
     t0_valid.value = false 
@@ -196,6 +199,7 @@ export function reset_t0_t1() {
     t1_valid.value = false                 
 }
 
+// Start the cutlist all over again
 export function reset_cutlist() {
     reset_t0_t1();
     cutlist.value = []
@@ -203,43 +207,7 @@ export function reset_cutlist() {
     cutterdialog.value = false
 }
 
-// computed:
-export const movie = computed({
-    get: () => {
-        //reset_t0_t1()
-        lpos.value = 0
-        //timeline(lpos.value)
-        //this.lmovie_dummy = this.lmovie_dummy
-        load_movie_info()
-        return lmovie.value
-    },
-    set(val) {
-        //console.log('in movie setter')
-        lmovie.value = val
-    }
-})
-
-// methods:
-export async function load_movie_info() {
-    const endpoint = `${protocol.value}//${host.value}/movie_info`
-    /* console.log(
-        'url:', endpoint, 
-        'section:', section.value, 
-        'lmovie', lmovie.value
-    ) */
-    try {
-        const response = await axios.post(endpoint,
-            { "section": section.value, "movie": lmovie.value },
-            { headers: { 'Content-type': 'application/json', }});
-        // console.log('response', response.data)
-        lmovie_info.value = response.data.movie_info
-        // console.log('lmovie_info', lmovie_info.value)
-    } catch (e) {
-        console.log(`${endpoint} \n` + String(e));
-        alert(`${endpoint} \n` + String(e));
-    }
-}
-
+// rec to store received progress status
 export const progress_status = ref({
     "apsc_size": 0,
     "progress": 0,
@@ -247,3 +215,61 @@ export const progress_status = ref({
     "status": "idle",
     "title": "-"
   })
+
+// ************************************************************************************************
+// plex related functions
+// ************************************************************************************************
+
+export const sections = ref([])
+export const section = ref('')
+export const section_type = ref('')
+export const movies = ref([])
+export const lmovie = ref('')
+export const seasons = ref([])
+export const season = ref('')
+export const series = ref([])
+export const serie = ref('')
+export const lmovie_info = ref({})
+export const frame_name = ref('');
+
+// load information about the selected movie/video
+export async function load_movie_info() {
+    const endpoint = `${protocol.value}//${host.value}/movie_info`
+    try {
+        const response = await axios.post(endpoint,
+            { "section": section.value, "movie": lmovie.value },
+            { headers: { 'Content-type': 'application/json', }});
+        lmovie_info.value = response.data.movie_info
+    } catch (e) {
+        console.log(`${endpoint} \n` + String(e));
+        alert(`${endpoint} \n` + String(e));
+    }
+}
+
+// computed variabel movie ... a proxy for lmovie
+export const movie = computed({
+    get: () => {
+        lpos.value = 0
+        load_movie_info()
+        return lmovie.value
+    },
+    set(val) {
+        lmovie.value = val
+    }
+})
+
+// fetch the frame for the selected movie position
+export async function get_frame(pos) {
+    const endpoint = `${protocol.value}//${host.value}/frame`
+    // console.log(`in load frame, Position ${pos}`)
+    try {
+        const response = await axios.post(endpoint,
+            { "pos_time": pos, "movie_name": movie.value },
+            { headers: { 'Content-type': 'application/json', }});
+        frame_name.value = response.data.frame + '?' + String(Math.random());
+        // toggle_timeline.value = false  
+    } catch (e) {
+        console.log(`${endpoint} \n` + String(e));
+        alert(`${endpoint} \n` + String(e));
+    }
+}
