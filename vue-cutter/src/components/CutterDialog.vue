@@ -3,7 +3,7 @@ import { ref, computed } from 'vue'
 import axios from 'axios';
 import {
     host, protocol,
-    inplace, lmovie, movie, section,
+    inplace, useffmpeg, lmovie, movie, section,
     t0, t1, lmovie_cut_info,
     cutterdialog, cutterdialog_enable_cut, 
     reset_cutlist, cutlist, cutmsg, progress_status
@@ -18,6 +18,7 @@ async function do_cut() {
             "movie_name": lmovie.value,
             "cutlist": cutlist.value,
             "inplace": inplace.value,
+            "useffmpeg": useffmpeg.value,
             "etaest": lmovie_cut_info.value.eta
         },
         { headers: { 'Content-type': 'application/json',}});
@@ -86,6 +87,11 @@ function progress() {
             <v-divider></v-divider>
             <v-card-actions>
                 <v-spacer/>
+                <v-checkbox
+                    class="mt-6"
+                    v-model="useffmpeg"
+                    label="FFMPEG"
+                ></v-checkbox>
                 <v-btn
                     class="ml-4"
                     color="danger-button"
@@ -108,7 +114,7 @@ function progress() {
                 Cancel
                 </v-btn>
                 <v-btn
-                    class="ml-4"
+                    class="ml-4 mr-2"
                     color="tertiary-button"
                     variant="flat"
                     prepend-icon="mdi-restart"

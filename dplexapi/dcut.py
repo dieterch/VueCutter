@@ -88,7 +88,7 @@ class CutterInterface:
 		"""
 		return self._foldername(movie) + self._tempfilename(movie)
 
-	def _movie_stats(self, movie, cutlist, inplace=False):
+	def _movie_stats(self, movie, cutlist, inplace=False, useffmpeg=False):
 		"""
 		return TS Progress in percent 
 		"""
@@ -98,42 +98,53 @@ class CutterInterface:
 		faktor = cl/ml
 		moviesize = os.path.getsize(self._pathname(movie))
 		targetsize = faktor * moviesize
-		if inplace:
-			if os.path.exists(self._tempname(movie)):
-				progress = os.path.getsize(self._tempname(movie))/targetsize
+		targetfile = self._cutname(movie) if not inplace else self._tempname(movie)
+		try:
+			if useffmpeg:
+				# first calculate the size of all parts
+				actualsize = sum([os.path.getsize(f"{self._foldername(movie)}part{i}.ts") for i in range(len(cutlist))])
+				if len(cutlist) > 1:
+					# add the size of the target file to actualsize
+					if os.path.exists(targetfile):
+						actualsize += os.path.getsize(targetfile)
+					targetsize = 2 * targetsize # parts and target file
 			else:
-				progress = 0
-		else:
-			if os.path.exists(self._cutname(movie)):
-				progress = os.path.getsize(self._cutname(movie))/targetsize
-			else:
-				progress = 0
+				actualsize = os.path.getsize(targetfile)
+		except FileNotFoundError as e:
+			print(str(e))
+			actualsize = 0
+		print(f"**** actualsize: {actualsize:.0f} targetsize: {targetsize:.0f}")
+		progress = actualsize/targetsize
 		progress = int(progress * 100) if progress < 1.0 else 100
 		return progress
 
-	def _apsc_stats(self, movie, cutlist, inplace=False):
+	def _apsc_stats(self, movie, cutlist, inplace=False, useffmpeg=False):
 		"""
 		return AP Progress in percent 
 		"""
-		self.mount(movie)
-		cl = sum([self.cutlength(cut['t0'],cut['t1']) for cut in cutlist])
-		ml = (movie.duration / 60000)
-		faktor = cl/ml
-		moviesize = os.path.getsize(self._pathname(movie))
-		targetsize = faktor * moviesize * 0.064 / 1000
-		print(f"moviesize: {moviesize} targetsize: {targetsize:.0f} faktor: {faktor:.4f} cl: {cl} ml: {ml:.1f}")
-		if inplace:
-			if os.path.exists(self._pathname(movie)+'.ap'):
-				progress = os.path.getsize(self._pathname(movie)+'.ap')/targetsize
-			else:
-				progress = 0
+		# ffmpeg cut does not need .ap .sc files
+		if useffmpeg:
+			return 100
 		else:
-			if os.path.exists(self._cutname(movie)+'.ap'):
-				progress = os.path.getsize(self._cutname(movie)+'.ap')/targetsize
+			self.mount(movie)
+			cl = sum([self.cutlength(cut['t0'],cut['t1']) for cut in cutlist])
+			ml = (movie.duration / 60000)
+			faktor = cl/ml
+			moviesize = os.path.getsize(self._pathname(movie))
+			targetsize = faktor * moviesize * 0.064 / 1000
+			#print(f"moviesize: {moviesize} targetsize: {targetsize:.0f} faktor: {faktor:.4f} cl: {cl} ml: {ml:.1f}")
+			if inplace:
+				if os.path.exists(self._pathname(movie)+'.ap'):
+					progress = os.path.getsize(self._pathname(movie)+'.ap')/targetsize
+				else:
+					progress = 0
 			else:
-				progress = 0
-		progress = int(progress * 100) if progress < 1.0 else 100
-		return progress
+				if os.path.exists(self._cutname(movie)+'.ap'):
+					progress = os.path.getsize(self._cutname(movie)+'.ap')/targetsize
+				else:
+					progress = 0
+			progress = int(progress * 100) if progress < 1.0 else 100
+			return progress
 
 	def mount(self, movie):
 		if len(movie.locations) > 1:
@@ -337,19 +348,9 @@ text='{(ftime[:2]+chr(92)+':'+ftime[3:5]+chr(92)+':'+ftime[-2:]).replace('0','O'
 		print()
 		print(f"'{self._filename(movie)}' wird geschnitten. -]+{cutlist}+[- ")
   
-		nexc_lst = [self._mcut_binary,"-n",f"'{movie.title}'","-d", f"'{movie.summary}'",f"{self._pathname(movie)}","-c"] + [v for c in cutlist for k,v in c.items()]
+		nexc_lst = [self._mcut_binary,"-n",f"'{movie.title}'","-d", f"'{movie.summary}'",f"{self._pathname(movie)}","-c"] + [v for c in cutlist for v in c.values()]
 		if inplace:
 			nexc_lst.insert(1,'-r')
-  
-		# if inplace:
-		# 	nexc_lst = [self._mcut_binary,"-r","-n",f"'{movie.title}'","-d", f"'{movie.summary}'",f"{self._pathname(movie)}","-c"]
-		# else:
-		# 	nexc_lst = [self._mcut_binary,"-n",f"'{movie.title}'","-d", f"'{movie.summary}'",f"{self._pathname(movie)}","-c"]
-   
-		# for cut in cutlist:
-		# 	for key, value in cut.items():
-		# 			nexc_lst.append(value)
-
 		try:
 			print("---------------------------------")
 			print(f"nexc_lst: {nexc_lst}")
@@ -362,13 +363,13 @@ text='{(ftime[:2]+chr(92)+':'+ftime[3:5]+chr(92)+':'+ftime[-2:]).replace('0','O'
 			raise e
 
 	def _ffmpegjoin(self, movie, cutlist, inplace = False):
-        # ffmpeg -i 'concat:part1.ts|part2.ts' -c copy out.ts
+        # if there is only one part, just rename it to the target file otherwise join the parts
 		if len(cutlist) > 1:
 			print()
 			print(f"'{self._filename(movie)}' wird mit ffmpeg zusammengefügt. -]+{cutlist}+[- ")
 			exc_lst = [self._ffmpeg_binary,"-y","-hide_banner","-loglevel","fatal", "-i"]
 			file_lst = [f"{self._foldername(movie)}part{i}.ts" for i in range(len(cutlist))]
-			exc_lst += [f"concat:" + '|'.join(file_lst),"-c","copy",f"{self._cutname(movie)}.ffmpeg.ts"]
+			exc_lst += [f"concat:" + '|'.join(file_lst),"-c","copy",f"{self._cutname(movie)}"]
 			try:
 				print("---------------------------------")
 				print(f"exc_lst: {exc_lst}")
@@ -383,14 +384,27 @@ text='{(ftime[:2]+chr(92)+':'+ftime[3:5]+chr(92)+':'+ftime[-2:]).replace('0','O'
 			except subprocess.CalledProcessError as e:
 				raise e
 		else:
-			# rename part0.ts to f"{self._cutname(movie)}.ffmpeg.ts"
 			try:
-				os.rename(f"{self._foldername(movie)}part0.ts", f"{self._cutname(movie)}.ffmpeg.ts")
-				return f"{self._filename(movie)} wurde umbenannt."
+				if inplace:
+					targetname =  f"{self._pathname(movie)}"
+				else:
+					targetname =  f"{self._cutname(movie)}"
+				if os.path.exists(targetname):
+					os.remove(targetname)
+				os.rename(f"{self._foldername(movie)}part0.ts",targetname)
+	
+ 				# remove .ap and .sc files, if they exist
+				print(f"targetname: {targetname}, {targetname+'.ap'}, {targetname+'.sc'}")	
+				if os.path.exists(targetname+'.ap'):
+					os.remove(targetname+'.ap')
+				if os.path.exists(targetname+'.sc'):
+					os.remove(targetname+'.sc')
+
+				return f"{self._filename(movie)} wurde in {targetname} umbenannt."
 			except FileNotFoundError as e:
 				raise e
 
-	def _ffmpegcut(self, movie, cutlist, inplace = False):
+	def _ffmpegsplit(self, movie, cutlist, inplace = False):
 		print()
 		print(f"'{self._filename(movie)}' wird mit ffmpeg geschnitten. -]+{cutlist}+[- ")
 		exc_lst = [self._ffmpeg_binary,"-y","-hide_banner","-loglevel","fatal"]
@@ -410,13 +424,14 @@ text='{(ftime[:2]+chr(92)+':'+ftime[3:5]+chr(92)+':'+ftime[-2:]).replace('0','O'
 		except subprocess.CalledProcessError as e:
 			raise e
 
-	def cut(self, movie, cutlist, inplace=False):
+	def cut(self, movie, cutlist, inplace=False, useffmpeg=False):
 		t0 = time.time()
-		t1 = time.time() #initialize t1, in case .ap files already exist ...
+		t1 = time.time() #initialize t1, in case no first run applies (e.g.) .ap files already exist ...
 		restxt = 'cut started ... \n'
 		resdict = {
 			'name': movie.title,
-			'inplace': inplace
+			'inplace': inplace,
+			'useffmpeg': useffmpeg
 		}
 		self.mount(movie)
 		#check ob .ap und .sc Dateien existieren, wenn nicht, erzeugen
@@ -437,58 +452,79 @@ text='{(ftime[:2]+chr(92)+':'+ftime[3:5]+chr(92)+':'+ftime[-2:]).replace('0','O'
 			except FileNotFoundError as e:
 				print(str(e))
 
-		if not os.path.exists(self._pathname(movie)+'.ap'):
+
+		if useffmpeg:
+			# use FFMPEG for cutting
 			try:
-				res = self._reconstruct_apsc(movie)
-				t1 = time.time()
-				restxt += f"Ergebnis Reconstruct: {res}\n"
-				restxt += f"ReSt Zeit: {(t1 - t0):7.0f} sec.\n\n"
+				t1=time.time()
+				res = self._ffmpegsplit(movie,cutlist,inplace)
+				print("---------------------------------")
+				print("FFMPEG split Result: ", res)
+				print("---------------------------------")
+				restxt += f"Result FFMpeg Spit: {res}\n"
+				restxt += f"Split Time: {(t1 - t0):7.0f} sec.\n\n"
 				resdict.update({
-					'RestApTime': (t1-t0)
+						'FFSplitTime': (t1-t0)
 				})
+				res2 = self._ffmpegjoin(movie,cutlist,inplace)
+				print("---------------------------------")
+				print("FFMPEG join Result: ", res2)
+				print("---------------------------------")
+				t2 = time.time()
+				restxt += f"Ergebnis FFMPEG Join: {res2}\n"
 			except subprocess.CalledProcessError as e:
 				raise e
-		
-		try:
-			res = self._ffmpegcut(movie,cutlist,inplace)
-			print("---------------------------------")
-			print("FFMPEG cut result: ", res)
-			print("---------------------------------")
-			res3 = self._ffmpegjoin(movie,cutlist,inplace)
-			print("---------------------------------")
-			print("FFMPEG cut result: ", res3)
-			print("---------------------------------")
-			res = self._mcut(movie,cutlist,inplace)
-			t2 = time.time()
 
-			if ((inplace == True) and (os.path.exists(self._cutname(movie)))):
+		else:
+			# use MCUT for cutting
+			# check if mcut assistence files (.ap, .sc) exist, if not (check for .ap is enough ...), reconstruct them.
+			if not os.path.exists(self._pathname(movie)+'.ap'):
 				try:
-					os.remove(self._cutname(movie))
-					if os.path.exists(self._cutname(movie)+'.ap'):
-						os.remove(self._cutname(movie)+'.ap')
-					if os.path.exists(self._cutname(movie)+'.cuts'):
-						os.remove(self._cutname(movie)+'.cuts')
-					if os.path.exists(self._cutname(movie)+'.sc'):
-						os.remove(self._cutname(movie)+'.sc')
-					restxt += f"cut successful, *_cut.ts file deleted.\n"
-				except FileNotFoundError as e:
-					print(str(e))
+					res = self._reconstruct_apsc(movie)
+					print("---------------------------------")
+					print("mcut Reconstruct Result: ", res)
+					print("---------------------------------")
+					t1 = time.time()
+					restxt += f"Result Reconstruct: {res}\n"
+					restxt += f"ReSt Time: {(t1 - t0):7.0f} sec.\n\n"
+					resdict.update({
+						'RestApTime': (t1-t0)
+					})
+				except subprocess.CalledProcessError as e:
+					raise e
+			
+			try:
+				res2 = self._mcut(movie,cutlist,inplace)
+				print("---------------------------------")
+				print("MCUT Result: ", res2)
+				print("---------------------------------")
+				t2 = time.time()
+				restxt += f"Ergebnis MCUT: {res2}\n"
+			except subprocess.CalledProcessError as e:
+				raise e
 
-			restxt += f"Ergebnis Mcut: {res}\n"
-			restxt += f"Mcut Zeit: {(t2 - t1):7.0f} sec.\n"
-			restxt += f"Ges. Zeit: {(t2 - t0):7.0f} sec.\n\n"
-			resdict.update({
-				'McutTime': (t2 - t1),
-				'TotalTime': (t2 - t0),
-			})
-			print(f"elapsed time: {(t2 - t0):7.0f} sec.")
-			if self.target != "":
-				self.delete_target_files()
-				self.target = ""
-			#return restxt
-			return resdict
-		except subprocess.CalledProcessError as e:
-			raise e
-		finally:
-			pass
-			#self.umount()
+		if ((inplace == True) and (os.path.exists(self._cutname(movie)))):
+			try:
+				os.remove(self._cutname(movie))
+				if os.path.exists(self._cutname(movie)+'.ap'):
+					os.remove(self._cutname(movie)+'.ap')
+				if os.path.exists(self._cutname(movie)+'.cuts'):
+					os.remove(self._cutname(movie)+'.cuts')
+				if os.path.exists(self._cutname(movie)+'.sc'):
+					os.remove(self._cutname(movie)+'.sc')
+				restxt += f"cut successful, *_cut.ts file deleted.\n"
+			except FileNotFoundError as e:
+				print(str(e))
+
+		restxt += f"Cut Time    : {(t2 - t1):7.0f} sec.\n"
+		restxt += f"Total Time  : {(t2 - t0):7.0f} sec.\n\n"
+		resdict.update({
+			'CutTime': (t2 - t1),
+			'TotalTime': (t2 - t0),
+		})
+		print(f"elapsed time: {(t2 - t0):7.0f} sec.")
+		if self.target != "":
+			self.delete_target_files()
+			self.target = ""
+		return resdict
+		#self.umount()

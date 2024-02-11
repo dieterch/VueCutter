@@ -1,5 +1,5 @@
 <script setup>
-import { progress_status } from '@/app';
+import { progress_status, useffmpeg } from '@/app';
 
 </script>
 
@@ -34,7 +34,10 @@ import { progress_status } from '@/app';
             <!-- v-col class="text-left" cols="6">
                 <strong>ASPC: {{ Math.trunc(progress_status.apsc_size / 1024) }} kB</strong>
             </v-col -->
-            <v-col cols="5">
+            <v-col
+                v-if="!useffmpeg" 
+                cols="5"
+                >
                 <small size="x-small">APSC:</small>
                 <v-progress-linear
                     :model-value="progress_status.apsc_progress"
@@ -46,7 +49,8 @@ import { progress_status } from '@/app';
                 </v-progress-linear>
             </v-col>
             <v-col cols="5">
-                <small size="x-small">Progress:</small>
+                <small size="x-small" v-if="useffmpeg">FFMPEG:</small>
+                <small size="x-small" v-else>Progress:</small>
                 <v-progress-linear
                     :model-value="progress_status.cut_progress"
                     color="primary"
