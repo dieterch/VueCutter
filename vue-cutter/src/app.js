@@ -75,8 +75,12 @@ export const pos_from_end = (dsec) => {
 
 // check if position is valid
 export const posvalid = (val) => {
-    val = (val >=0 ) ? val : -998 //0
-    val = (val <= pos_from_end(0)) ? val : -998 //this.pos_from_end(0)
+    //console.log('before Val:',val, 'pos_from_end(0):',pos_from_end(0),'lmovie_info',lmovie_info.value.duration_ms / 1000, 'val >=0', val >=0)
+    //val = (val >=0 ) ? val : -998 //0
+    //val = (val <= pos_from_end(0)) ? val : -998 //this.pos_from_end(0)
+    val = (val >=0 ) ? val : 0
+    val = (val <= pos_from_end(0)) ? val : pos_from_end(0)
+    //console.log('after Val:',val, 'pos_from_end(0):',pos_from_end(0), 'lmovie_info',lmovie_info.value.duration_ms / 1000, 'val >=0', val >=0)
     return val
 }
 
@@ -172,8 +176,9 @@ export const hpos = (b) => {
         set_timeline_step(Math.abs(b.val))
         if (!toggle_timeline.value) {
             lpos.value += b.val
+            //console.log('before validation lpos:',lpos.value)
             lpos.value = posvalid(lpos.value)
-            // console.log(this.lpos)
+            //console.log('after validation  lpos:',lpos.value)
         }
         timeline(lpos.value)                
     } else if (b.type == "abs") {
