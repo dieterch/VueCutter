@@ -40,8 +40,8 @@ import {hpos,
 }
 
 .shift_down {
-    top: calc(2*48px);
-    /* top: 0; */
+    /* top: calc(2*48px); */
+    top: 0;
 }
 
 .dbox {

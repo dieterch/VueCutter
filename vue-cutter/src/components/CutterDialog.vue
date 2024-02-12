@@ -86,44 +86,71 @@ function progress() {
             </v-card-text>
             <v-divider></v-divider>
             <v-card-actions>
-                <v-spacer/>
-                <v-checkbox
-                    class="mt-6"
-                    v-model="useffmpeg"
-                    label="FFMPEG"
-                ></v-checkbox>
-                <v-btn
-                    class="ml-4"
-                    color="danger-button"
-                    variant="flat"
-                    prepend-icon="mdi-content-cut"
-                    width="120px"
-                    @click="do_cut"
-                    :disabled="!cutterdialog_enable_cut"
-                >
-                Cut
-                </v-btn>
-                <v-btn
-                    class="ml-4"
-                    color="primary-button"
-                    variant="flat"
-                    prepend-icon="mdi-cancel"
-                    width="120px"
-                    @click="cutterdialog = false"
-                >
-                Cancel
-                </v-btn>
-                <v-btn
-                    class="ml-4 mr-2"
-                    color="tertiary-button"
-                    variant="flat"
-                    prepend-icon="mdi-restart"
-                    width="120px"
-                    @click="reset_cutlist"
-                >
-                Reset
-                </v-btn>
-                <v-spacer/>
+                <v-row nogap>
+                    <v-col cols="4">
+                        <v-btn
+                            class="ma-0 ml-4"
+                            color="danger-button"
+                            variant="flat"
+                            prepend-icon="mdi-content-cut"
+                            width="120px"
+                            @click="do_cut"
+                            :disabled="!cutterdialog_enable_cut"
+                            >
+                            Cut
+                        </v-btn>
+                    </v-col>
+                    <v-col cols="4">
+                        <v-btn
+                            class="ma-0"
+                            color="primary-button"
+                            variant="flat"
+                            prepend-icon="mdi-cancel"
+                            width="120px"
+                            @click="cutterdialog = false"
+                            >
+                            Cancel
+                        </v-btn>
+                    </v-col>
+                    <v-col cols="4">
+                        <v-btn
+                            class="ma-0"
+                            color="tertiary-button"
+                            variant="flat"
+                            prepend-icon="mdi-restart"
+                            width="120px"
+                            @click="reset_cutlist"
+                            >
+                            Reset
+                        </v-btn>
+                    </v-col>
+                    <v-spacer/>
+                    <!--/v-row>
+                        <v-row-->
+                    <v-col 
+                        cols="3"
+                        class="ma-0 ml-3 pa-0"
+                        >
+                        <v-checkbox
+                        density="compact"
+                        class="mt-0 ml-3"
+                        v-model="useffmpeg"
+                        label="FFMP"
+                        ></v-checkbox>
+                    </v-col>
+                    <v-col 
+                        cols="3"
+                        class="ma-0 ml-11 pa-0"
+                        >
+                        <v-checkbox
+                        density="compact"
+                        class="mt-0"
+                        v-model="inplace"
+                        label="Inplace"
+                        ></v-checkbox>
+                    </v-col>
+                    <v-spacer/>
+                </v-row>
             </v-card-actions>
         </v-card>
     </v-dialog>

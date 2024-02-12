@@ -143,7 +143,7 @@ const TestTheme = {
 
 export default createVuetify({
   theme: {
-    defaultTheme: 'light',
+    defaultTheme: 'LightTheme',
     themes: {
       LightTheme,
       DarkTheme,

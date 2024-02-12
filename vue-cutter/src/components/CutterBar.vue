@@ -78,7 +78,7 @@ async function cut_info() {
             section: section.value,
             movie: lmovie.value,
             cutlist: cutlist.value,
-            Inplace: inplace.value,
+            //Inplace: inplace.value,
             ".ap .sc Files ?": lmovie_cut_info.value.apsc,
             "_cut File ?": lmovie_cut_info.value.cutfile
         }
@@ -108,130 +108,88 @@ function extend_cutlist() {
     name="cutter-bar" 
     color="toolsbackground"
     density="compact"
-    height="100px"
     :elevation="0"
     >
-        <v-row dense justify="center" class="ma-1">
-            <v-col>
-                <v-btn
-                    v-if="t0_valid"
-                    variant="flat"
-                    class=""
-                    color="primary-button"
-                    size="default"
-                    prepend-icon="mdi-align-horizontal-right"
-                    block="true"
-                    @click="hpos({type:'t0'})"
-                >
-                {{ t0 }}
-                </v-btn>
-                <v-btn
-                    v-else
-                    variant="flat"
-                    class=""
-                    color="primary-button"
-                    size="default"
-                    prepend-icon="mdi-align-horizontal-right"
-                    block="true"
-                    @click="hpos({type:'t0'})"
-                >
-                -- : -- : --
-                </v-btn>
-            </v-col>
-
-            <v-col>
-                <v-btn
-                    v-if="t1_valid"
-                    variant="flat"
-                    class="pr-2"
-                    color="primary-button"
-                    block="true"
-                    size="default"
-                    append-icon="mdi-align-horizontal-left"
-                    @click="hpos({type:'t1'})"
+        <template v-slot:prepend>
+                    <v-btn
+                        v-if="t0_valid"
+                        variant="flat"
+                        class="mr-2"
+                        color="primary-button"
+                        size="default"
+                        prepend-icon="mdi-align-horizontal-right"
+                        block="true"
+                        @click="hpos({type:'t0'})"
                     >
-                    {{ t1 }}
-                </v-btn>
-                <v-btn
-                    v-else
-                    variant="flat"
-                    class="pr-2"
-                    color="primary-button"
-                    block="true"
-                    size="default"
-                    append-icon="mdi-align-horizontal-left"
-                    @click="hpos({type:'t1'})"
+                    {{ t0 }}
+                    </v-btn>
+                    <v-btn
+                        v-else
+                        variant="flat"
+                        class="mr-2"
+                        color="primary-button"
+                        size="default"
+                        prepend-icon="mdi-align-horizontal-right"
+                        block="true"
+                        @click="hpos({type:'t0'})"
                     >
                     -- : -- : --
-                </v-btn>
-            </v-col>
-
-            <v-btn
-                v-if="t0_valid & t1_valid"
-                icon="mdi-plus" 
-                size="small" 
-                density="compact" 
-                align="center"
-                class="mt-3"
-                @click="extend_cutlist"
-            >
-            </v-btn>
-
-            <v-col>
-                <v-btn
-                    v-if="cut_ok"
-                    variant="flat"
-                    class="text--black"
-                    color="primary-button"
-                    block="true"
-                    size="default"
-                    :append-icon=inplaceIcon
-                    @click="toggle_inplace"
-                >
-                Inplace
-                </v-btn>
-                <v-btn
-                    v-else
-                    variant="flat"
-                    class="text--black"
-                    color="primary-button"
-                    block="true"
-                    size="default"
-                    :append-icon=inplaceIcon
-                    disabled
-                >
-                Inplace
-                </v-btn>
-            </v-col>
+                    </v-btn>
+                    <v-btn
+                        v-if="t1_valid"
+                        variant="flat"
+                        color="primary-button"
+                        block="true"
+                        size="default"
+                        append-icon="mdi-align-horizontal-left"
+                        @click="hpos({type:'t1'})"
+                        >
+                        {{ t1 }}
+                    </v-btn>
+                    <v-btn
+                        v-else
+                        variant="flat"
+                        color="primary-button"
+                        block="true"
+                        size="default"
+                        append-icon="mdi-align-horizontal-left"
+                        @click="hpos({type:'t1'})"
+                        >
+                        -- : -- : --
+                    </v-btn>
+                    <v-col>
+                        <v-btn
+                            v-if="t0_valid & t1_valid"
+                            icon="mdi-plus" 
+                            color="primary-button"
+                            size="small"
+                            @click="extend_cutlist"
+                            >
+                        </v-btn>
+                    </v-col>
+        </template>
+        <template v-slot:append>
         
             <v-col>
                 <v-btn
                     v-if="cut_ok"
-                    variant="flat"
-                    class="text--black"
-                    color="danger-button"
-                    block="true"
-                    size="default"
-                    append-icon="mdi-content-cut"
+                    icon="mdi-content-cut"
+                    color="primary-button"
+                    size="small"
                     @click="cut_info"
                 >
-                Cut
                 </v-btn>
                 <v-btn
                     v-else
-                    variant="flat"
-                    class="text--black"
-                    color="danger-button"
-                    block="true"
-                    size="default"
-                    append-icon="mdi-content-cut"
+                    icon="mdi-content-cut"
+                    color="primary-button"
+                    size="small"
                     disabled
                 >
-                Cut
                 </v-btn>
             </v-col>
-        </v-row>
-</v-app-bar>
+    </template>
+    </v-app-bar>
 </template>
 
 <style scoped>

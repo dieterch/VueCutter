@@ -23,5 +23,6 @@ redis==5.0.1
 requests==2.31.0
 rq==1.15.1
 urllib3==2.1.0
+uvicorn==0.27.1
 Werkzeug==3.0.1
 wsproto==1.2.0
