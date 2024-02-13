@@ -171,7 +171,7 @@ export const useffmpeg = ref(true)
 
 // btn click function for all cutting/position related buttons
 export const hpos = (b) => {
-    // this.toggle_timeline = false 
+    // jump to the left or right relative to the current position
     if (b.type == "rel") {
         set_timeline_step(Math.abs(b.val))
         if (!toggle_timeline.value) {
@@ -180,17 +180,22 @@ export const hpos = (b) => {
             lpos.value = posvalid(lpos.value)
             //console.log('after validation  lpos:',lpos.value)
         }
-        timeline(lpos.value)                
+        timeline(lpos.value)
+    // jump to the left or right to an absolute position
     } else if (b.type == "abs") {
         //console.log('in hpos type abs', b)
         lpos.value = b.val
-        timeline(lpos.value)                 
+        timeline(lpos.value)
+    // Store Start of the cutting window in t0
     } else if (b.type == "t0")  {
         t0.value = pos.value
-        t0_valid.value = true 
+        t0_valid.value = true
+        toggle_timeline.value = false 
+    // Store End of the cutting window in t1
     }else if (b.type == "t1")  {
         t1.value = pos.value
         t1_valid.value = true 
+        toggle_timeline.value = false 
     } else {
         alert("unknown type in hpos")
     }

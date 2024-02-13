@@ -1,17 +1,19 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { computed } from 'vue'
 import axios from 'axios';
 import CutterDialog from './CutterDialog.vue';
 
 import {
-    protocol, host, 
+    protocol, host,
+    lpos, posvalid, pos_from_end,
+    toggle_timeline, timeline, 
     t0, t0_valid, 
     t1, t1_valid,
     inplace,
     ltimeline,
-    movie, lmovie, section,
+    lmovie, section,
     cutlist, cutterdialog, cutterdialog_enable_cut, cutmsg, lmovie_cut_info,
-    hpos, progress_status } from '@/app';
+    hpos } from '@/app';
 
 const cut_ok = computed(() => {
         // console.log(t0_valid.value, t1_valid.value, ltimeline.value.step)
@@ -24,14 +26,12 @@ const inplaceIcon = computed(() => {
     return ret
 })
 
-function toggle_inplace() {
-        inplace.value = !inplace.value
-    }
-
+// function toggle_inplace() {
+//         inplace.value = !inplace.value
+//     }
 
 function add_to_cutlist(interval) {
-    // check if interval is already in cutlist
-    // if not, add it
+    // check if interval is already in cutlist, if not, add it
     if (cutlist.value.some((e) => e.t0 == interval.t0 && e.t1 == interval.t1)) {
         console.log("Interval already in cutlist")
     } else {
@@ -99,6 +99,34 @@ function extend_cutlist() {
     // alert("extend_cutlist", cutlist.value)
     console.log("extend_cutlist", cutlist.value)
 }
+
+function page_minus_timeline() {
+    if (lpos.value + ((ltimeline.value.l - ltimeline.value.r) * ltimeline.value.step)> 0) {
+        lpos.value += (ltimeline.value.l - ltimeline.value.r) * ltimeline.value.step
+        lpos.value = posvalid(lpos.value)                
+    } else lpos.value = 0
+    timeline(lpos.value)
+}
+
+function page_plus_timeline() {
+    //console.log('in ">":',this.lpos, this.pos_from_end(0), this.lpos + (this.ltimeline.r - this.ltimeline.l) * this.ltimeline.step)
+    if (lpos.value + ((ltimeline.value.r - ltimeline.value.l) * ltimeline.value.step ) < pos_from_end(0)) {
+        lpos.value += (ltimeline.value.r - ltimeline.value.l) * ltimeline.value.step
+        //console.log('in ">, if ... nach +=":',this.lpos)
+        lpos.value = posvalid(lpos.value)
+        //console.log('in ">, if ... nach this.posvalid":',this.lpos)
+    } else lpos.value = pos_from_end(0)
+    timeline(lpos.value)
+}
+
+function toggle_and_timeline(mypos) {
+    let tlt = toggle_timeline.value
+    toggle_timeline.value = !tlt
+    lpos.value = posvalid(lpos.value)
+    // console.log('in "toggle_and_timeline":',mypos)
+    timeline(mypos)
+}
+
 
 </script>
 
@@ -169,25 +197,40 @@ function extend_cutlist() {
                     </v-col>
         </template>
         <template v-slot:append>
-        
-            <v-col>
-                <v-btn
-                    v-if="cut_ok"
-                    icon="mdi-content-cut"
-                    color="primary-button"
-                    size="small"
-                    @click="cut_info"
-                >
-                </v-btn>
-                <v-btn
-                    v-else
-                    icon="mdi-content-cut"
-                    color="primary-button"
-                    size="small"
-                    disabled
-                >
-                </v-btn>
-            </v-col>
+            <v-btn 
+                icon="mdi-arrow-left-bold-box-outline"
+                color="primary-button"
+                size="small"
+                @click="page_minus_timeline()"
+            ></v-btn>
+            <v-btn 
+                icon="mdi-filmstrip" 
+                color="primary-button"
+                size="small"
+                @click="toggle_and_timeline(lpos)"
+            ></v-btn>
+            <v-btn
+                icon="mdi-arrow-right-bold-box-outline" 
+                color="primary-button"
+                size="small"
+                @click="page_plus_timeline()"
+            ></v-btn>
+            <v-btn
+                v-if="cut_ok"
+                icon="mdi-content-cut"
+                color="primary-button"
+                size="small"
+                @click="cut_info"
+            >
+            </v-btn>
+            <v-btn
+                v-else
+                icon="mdi-content-cut"
+                color="primary-button"
+                size="small"
+                disabled
+            >
+            </v-btn>
     </template>
     </v-app-bar>
 </template>

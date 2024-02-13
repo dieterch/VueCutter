@@ -129,7 +129,7 @@ load_selection() // initial load
                 </v-list>
             </v-menu>
 
-            <v-app-bar-title>Vue Web Cutter</v-app-bar-title>
+            <v-app-bar-title>Vue Web Cut</v-app-bar-title>
 
         </template>
 
@@ -172,11 +172,23 @@ load_selection() // initial load
         </template>
 
         <template v-slot:append>
-            <v-btn icon="mdi-reload" href="/force_update_section" size="small"></v-btn>
+            <v-btn 
+                icon="mdi-reload" 
+                class="ml-6"
+                href="/force_update_section" 
+                size="small"
+            ></v-btn>
             <v-btn icon="mdi-dots-vertical" href="/streamurl.xspf" size="small"></v-btn>
-            <v-menu location="bottom">
+            <v-menu 
+                location="bottom"
+                >
                 <template v-slot:activator="{ props }">
-                    <v-btn icon="mdi-palette-swatch" @click="toggleTheme" v-bind="props" size="small"></v-btn>
+                    <v-btn 
+                        icon="mdi-palette-swatch" 
+                        @click="toggleTheme" 
+                        v-bind="props" 
+                        size="small"
+                    ></v-btn>
                 </template>
                 <v-list
                     density="compact"

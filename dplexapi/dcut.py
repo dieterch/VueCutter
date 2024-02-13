@@ -96,10 +96,10 @@ class CutterInterface:
 		cl = sum([self.cutlength(cut['t0'],cut['t1']) for cut in cutlist])
 		ml = (movie.duration / 60000)
 		faktor = cl/ml
-		moviesize = os.path.getsize(self._pathname(movie))
-		targetsize = faktor * moviesize
-		targetfile = self._cutname(movie) if not inplace else self._tempname(movie)
 		try:
+			moviesize = os.path.getsize(self._pathname(movie))
+			targetsize = faktor * moviesize
+			targetfile = self._cutname(movie) if not inplace else self._tempname(movie)
 			if useffmpeg:
 				# first calculate the size of all parts
 				actualsize = sum([os.path.getsize(f"{self._foldername(movie)}part{i}.ts") for i in range(len(cutlist))])

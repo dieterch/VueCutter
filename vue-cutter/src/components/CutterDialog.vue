@@ -58,31 +58,31 @@ function progress() {
     width="auto"
     >
         <v-card
-            title="Cut Info"
+            title="Cut Dialog"
             color="dialogbackground"
             :subtitle="movie"
         >
             <v-card-text>
-            <v-table 
-                density="compact"
-                theme="dark"        
-                >
-                <thead>
-                    <tr>
-                        <th class="text-left">Name</th>
-                        <th class="text-left">Wert</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr
-                        v-for = "(val, key) in cutmsg"
-                        :key = "key"
+                <v-table 
+                    density="compact"
+                    theme="dark"        
                     >
-                        <td>{{ key }}</td>
-                        <td>{{ val }}</td>
-                    </tr>
-                </tbody>
-            </v-table>
+                    <thead>
+                        <tr>
+                            <th class="text-left">Name</th>
+                            <th class="text-left">Wert</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr
+                            v-for = "(val, key) in cutmsg"
+                            :key = "key"
+                        >
+                            <td>{{ key }}</td>
+                            <td>{{ val }}</td>
+                        </tr>
+                    </tbody>
+                </v-table>
             </v-card-text>
             <v-divider></v-divider>
             <v-card-actions>

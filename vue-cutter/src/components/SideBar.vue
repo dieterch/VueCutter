@@ -1,11 +1,10 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { computed } from 'vue'
 import { 
-    movies, movie, 
     lmovie_info,
-    pos, lpos, hpos, posvalid,
+    pos, lpos, hpos,
     pos_from_end, pos2str,  
-    timeline, ltimeline, toggle_timeline
+    ltimeline
 } from '@/app';
 
 const buttons_left = computed(() => {
@@ -38,33 +37,6 @@ const buttons_right = computed(() => {
     ]
 })
 
-
-function page_minus_timeline() {
-    if (lpos.value + ((ltimeline.value.l - ltimeline.value.r) * ltimeline.value.step)> 0) {
-        lpos.value += (ltimeline.value.l - ltimeline.value.r) * ltimeline.value.step
-        lpos.value = posvalid(lpos.value)                
-    } else lpos.value = 0
-    timeline(lpos.value)
-}
-
-function page_plus_timeline() {
-    //console.log('in ">":',this.lpos, this.pos_from_end(0), this.lpos + (this.ltimeline.r - this.ltimeline.l) * this.ltimeline.step)
-    if (lpos.value + ((ltimeline.value.r - ltimeline.value.l) * ltimeline.value.step ) < pos_from_end(0)) {
-        lpos.value += (ltimeline.value.r - ltimeline.value.l) * ltimeline.value.step
-        //console.log('in ">, if ... nach +=":',this.lpos)
-        lpos.value = posvalid(lpos.value)
-        //console.log('in ">, if ... nach this.posvalid":',this.lpos)
-    } else lpos.value = pos_from_end(0)
-    timeline(lpos.value)
-}
-
-function toggle_and_timeline(mypos) {
-    let tlt = toggle_timeline.value
-    toggle_timeline.value = !tlt
-    lpos.value = posvalid(lpos.value)
-    // console.log('in "toggle_and_timeline":',mypos)
-    timeline(mypos)
-}
 </script>
 
 <template>
@@ -75,7 +47,7 @@ function toggle_and_timeline(mypos) {
         color="toolsbackground"
         :width="160"
     >
-        <v-row 
+        <!--v-row 
             justify="center"
             class="py-2 px-2">
                 <v-col cols="4">
@@ -111,7 +83,7 @@ function toggle_and_timeline(mypos) {
                         @click="page_plus_timeline()"
                     ></v-btn>
                 </v-col>
-        </v-row>
+        </v-row-->
         <div class="no-text-center">
             <v-chip 
                 prepend-icon="mdi-movie-open" 
