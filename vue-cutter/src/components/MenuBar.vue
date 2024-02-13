@@ -87,7 +87,7 @@ function onChangeMovie() {
 
 function setTheme (themeName) {
     set_themecookie(themeName) 
-    theme.global.name.value = themeName
+    theme.global.name.value = themeName || 'LightTheme'
 }
 
 function filterTheme (themeName) {

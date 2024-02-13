@@ -32,7 +32,7 @@ export function deleteCookie(id) {
 
  }
 
-export function get_themecookie() { return getCookie('theme') || 'light' }
+export function get_themecookie() { return getCookie('theme') || 'LightTheme' }
 export function set_themecookie(mytheme) { return setCookie('theme', mytheme) }
 
 // ************************************************************************************************

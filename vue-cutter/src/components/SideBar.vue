@@ -47,67 +47,31 @@ const buttons_right = computed(() => {
         color="toolsbackground"
         :width="160"
     >
-        <!--v-row 
-            justify="center"
-            class="py-2 px-2">
-                <v-col cols="4">
-                    <v-btn 
-                        no-density="comfortable" 
-                        icon="mdi-arrow-left-bold-box-outline" 
-                        class=""
-                        color="primary-button"
-                        size="x-small"
-                        variant="flat"
-                        @click="page_minus_timeline()"
-                    ></v-btn>
-                </v-col>
-                <v-col cols="4">
-                    <v-btn 
-                        no-density="comfortable" 
-                        icon="mdi-filmstrip" 
-                        class=""
-                        color="primary-button"
-                        size="x-small"
-                        variant="flat"
-                        @click="toggle_and_timeline(lpos)"
-                    ></v-btn>
-                </v-col>
-                <v-col cols="4">
-                    <v-btn 
-                        no-density="comfortable" 
-                        icon="mdi-arrow-right-bold-box-outline" 
-                        class=""
-                        color="primary-button"
-                        size="x-small"
-                        variant="flat"
-                        @click="page_plus_timeline()"
-                    ></v-btn>
-                </v-col>
-        </v-row-->
-        <div class="no-text-center">
-            <v-chip 
-                prepend-icon="mdi-movie-open" 
-                label
-                variant="text"
-                size="default"
-                class="mt-2 ml-2"
-                >
-                <strong>{{ pos2str(lmovie_info.duration * 60) }} &nbsp;&nbsp;&nbsp; ({{ lmovie_info.duration }}')</strong>
-            </v-chip>
-            <v-chip 
-                prepend-icon="mdi-movie-open-edit" 
-                variant="text"
-                label
-                size="default"
-                class="mt-0 ml-2"
-                >
-                <strong>
-                    {{ pos }} &nbsp;&nbsp;&nbsp; ({{ Math.trunc(lpos / 60) }}')
-                </strong>
-            </v-chip>
-    </div>
-<v-divider></v-divider>
-<div class="sb_container">
+        <v-divider></v-divider>
+            <div class="no-text-center">
+                    <v-chip 
+                        prepend-icon="mdi-movie-open" 
+                        label
+                        variant="text"
+                        size="default"
+                        class="mt-2 ml-2"
+                        >
+                        <strong>{{ pos2str(lmovie_info.duration * 60) }} &nbsp;&nbsp;&nbsp; ({{ lmovie_info.duration }}')</strong>
+                    </v-chip>
+                    <v-chip 
+                        prepend-icon="mdi-movie-open-edit" 
+                        variant="text"
+                        label
+                        size="default"
+                        class="mt-0 ml-2"
+                        >
+                        <strong>
+                            {{ pos }} &nbsp;&nbsp;&nbsp; ({{ Math.trunc(lpos / 60) }}')
+                        </strong>
+                    </v-chip>
+            </div>
+        <v-divider></v-divider>
+        <div class="sb_container">
             <div 
                 class="sb_box sb_box-buttons1 mt-2"
             >

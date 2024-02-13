@@ -75,82 +75,74 @@ function progress() {
                     </thead>
                     <tbody>
                         <tr
-                            v-for = "(val, key) in cutmsg"
-                            :key = "key"
+                        v-for = "(val, key) in cutmsg"
+                        :key = "key"
                         >
-                            <td>{{ key }}</td>
-                            <td>{{ val }}</td>
-                        </tr>
-                    </tbody>
-                </v-table>
-            </v-card-text>
-            <v-divider></v-divider>
-            <v-card-actions>
-                <v-row nogap>
-                    <v-col cols="4">
+                        <td>{{ key }}</td>
+                        <td>{{ val }}</td>
+                    </tr>
+                </tbody>
+            </v-table>
+        </v-card-text>
+        <v-divider></v-divider>
+        <v-card-actions>
+            <v-sheet 
+                class="d-flex flex-1-1-100 flex-column"
+                >
+                    <v-sheet
+                        class="d-flex justify-end bg-toolsbackground"
+                        height="30">
+                        <v-checkbox
+                            density="dense"
+                            class="ma-2"
+                            v-model="useffmpeg"
+                            label="FFMPEG"
+                        ></v-checkbox>
+                        <v-checkbox
+                            density="dense"
+                            class="ma-2"
+                            v-model="inplace"
+                            label="Inplace"
+                        ></v-checkbox>
+                    </v-sheet>
+                    <v-sheet 
+                        class="d-flex justify-end align-center bg-toolsbackground"
+                        >
                         <v-btn
-                            class="ma-0 ml-4"
+                            class="flex-1-1 ma-2"
                             color="danger-button"
                             variant="flat"
                             prepend-icon="mdi-content-cut"
-                            width="120px"
                             @click="do_cut"
                             :disabled="!cutterdialog_enable_cut"
+                            width="135"
                             >
                             Cut
                         </v-btn>
-                    </v-col>
-                    <v-col cols="4">
+
                         <v-btn
-                            class="ma-0"
+                            class="flex-1-1 ma-2"
                             color="primary-button"
                             variant="flat"
                             prepend-icon="mdi-cancel"
-                            width="120px"
                             @click="cutterdialog = false"
+                            width="135"
                             >
                             Cancel
                         </v-btn>
-                    </v-col>
-                    <v-col cols="4">
+
                         <v-btn
-                            class="ma-0"
+                            class="flex-1-1 ma-2"
                             color="tertiary-button"
                             variant="flat"
                             prepend-icon="mdi-restart"
-                            width="120px"
                             @click="reset_cutlist"
+                            width="135"
                             >
                             Reset
                         </v-btn>
-                    </v-col>
-                    <v-spacer/>
-                    <!--/v-row>
-                        <v-row-->
-                    <v-col 
-                        cols="3"
-                        class="ma-0 ml-3 pa-0"
-                        >
-                        <v-checkbox
-                        density="compact"
-                        class="mt-0 ml-3"
-                        v-model="useffmpeg"
-                        label="FFMP"
-                        ></v-checkbox>
-                    </v-col>
-                    <v-col 
-                        cols="3"
-                        class="ma-0 ml-11 pa-0"
-                        >
-                        <v-checkbox
-                        density="compact"
-                        class="mt-0"
-                        v-model="inplace"
-                        label="Inplace"
-                        ></v-checkbox>
-                    </v-col>
-                    <v-spacer/>
-                </v-row>
+                    </v-sheet>
+                </v-sheet>
             </v-card-actions>
         </v-card>
     </v-dialog>
