@@ -182,7 +182,7 @@ if __name__ == '__main__':
 ****************************************************
 ''')
     try:
-        #asyncio.run(app.run_task(host='0.0.0.0', port=5200, debug=True))
+        # asyncio.run(app.run_task(host='0.0.0.0', port=5200, debug=True))
         uvicorn.run('app:app', host='0.0.0.0', port=5200, log_level="info")
     finally:
         try:

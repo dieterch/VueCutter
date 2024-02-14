@@ -115,21 +115,18 @@ load_selection() // initial load
                     >
                     </v-app-bar-nav-icon>
                 </template>
-                <v-list
-                    density="compact"
-                >
+                <v-list density="compact">
                     <v-list-item
-                    v-for="(sec, index) in sections"
-                    :key="index"
+                        v-for="(sec, index) in sections"
+                        :key="index"
+                        :value="sec"
                     >
-                    <v-list-item-title
-                        @click="update_section(sec)"
-                    >{{ sec }}</v-list-item-title>
+                    <v-list-item-title @click="update_section(sec)">{{ sec }}</v-list-item-title>
                     </v-list-item>
                 </v-list>
             </v-menu>
 
-            <v-app-bar-title>Vue Web Cut</v-app-bar-title>
+            <v-app-bar-title class="ml-2">Vue Web Cut</v-app-bar-title>
 
         </template>
 
@@ -197,6 +194,7 @@ load_selection() // initial load
                             v-for="[key, value] of Object.entries(theme.themes.value).filter(filterTheme)"
                             v-bind="props"
                             :key="key"
+                            :value="key"
                             :color="isHovering ? 'primary' : 'transparent'"
                             >
                             <v-list-item-title
