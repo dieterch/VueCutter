@@ -75,15 +75,11 @@ export const pos_from_end = (dsec) => {
 
 // check if position is valid
 export const posvalid = (val) => {
-    //console.log('before Val:',val, 'pos_from_end(0):',pos_from_end(0),'lmovie_info',lmovie_info.value.duration_ms / 1000, 'val >=0', val >=0)
-    val = (val >=0 ) ? val : -998 //0
-    val = (val <= pos_from_end(0)) ? val : -998 //this.pos_from_end(0)
-    //val = (val >=0 ) ? val : 0
-    //val = (val <= pos_from_end(0)) ? val : pos_from_end(0)
-    //console.log('after Val:',val, 'pos_from_end(0):',pos_from_end(0), 'lmovie_info',lmovie_info.value.duration_ms / 1000, 'val >=0', val >=0)
+    // if val is outside of movie duration, return -998
+    val = (val >=0 ) ? val : -998 
+    val = (val <= pos_from_end(0)) ? val : -998 
     return val
 }
-
 
 // ************************************************************************************************
 // timeline functions

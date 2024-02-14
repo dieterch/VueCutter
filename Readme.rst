@@ -20,19 +20,18 @@ To configure this application, you have to create a **config.toml** file in the 
 
 Software:
 :: 
-  1.create and enter a folder on a raspberry pi 4+ or similar device.
-  2.git clone https://github.com/dieterch/VueCutter.git
-  3.install the python part in a virtual envirinment with the following commands:
+  1.create a folder on a raspberry pi 4+ or similar device: git clone https://github.com/dieterch/VueCutter.git
+  2.install the python part in a virtual envirinment with the following commands:
     a) python -m venv venv
     b) source venv/bin/activate
     c) pip install -r requirements.txt
-  4.Install the frontend with the following commands:
+  3.Install the frontend with the following commands:
     a) cd vue-cutter
     b) npm install
     c) npm run build
 ::
 
-Create the redis server with the following docker-compose.yml:
+Create a redis server with the following docker-compose.yml:
 ::
  version: '3.8'
  services:
@@ -63,7 +62,7 @@ Release History
 ---------------
 
 - 0.0.1 initial release as Quartcutter
-- 0.0.2 frontend updated to vue 3 / Vuetify 3
+- 0.1.0 frontend updated to vue 3 / Vuetify 3
 - Work in progress
 
 Meta
