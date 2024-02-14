@@ -65,7 +65,7 @@ function progress() {
             <v-card-text>
                 <v-table 
                     density="compact"
-                    theme="dark"        
+                    class="bg-toolsbackground"      
                     >
                     <thead>
                         <tr>

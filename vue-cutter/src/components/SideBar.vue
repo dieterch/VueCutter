@@ -71,9 +71,9 @@ const buttons_right = computed(() => {
                     </v-chip>
             </div>
         <v-divider></v-divider>
-        <v-sheet class="sb_container">
+        <v-sheet class="sb_container bg-toolsbackground">
             <v-sheet 
-                class="d-flex justify-center align-center sb_box-buttons1 mt-2"
+                class="d-flex justify-center align-center sb_box-buttons1 mt-2 bg-toolsbackground"
             >
                 <v-btn 
                     v-for="b in buttons_left"
@@ -91,7 +91,7 @@ const buttons_right = computed(() => {
                 </v-btn>
             </v-sheet>
             
-            <v-sheet class="d-flex justify-center align-center sb_box-buttons2 mt-2">
+            <v-sheet class="d-flex justify-center align-center sb_box-buttons2 mt-2 bg-toolsbackground">
                 <v-btn 
                     v-for="b in buttons_right"
                     :append-icon="b.icon"
