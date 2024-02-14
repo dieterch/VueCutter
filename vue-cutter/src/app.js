@@ -76,10 +76,10 @@ export const pos_from_end = (dsec) => {
 // check if position is valid
 export const posvalid = (val) => {
     //console.log('before Val:',val, 'pos_from_end(0):',pos_from_end(0),'lmovie_info',lmovie_info.value.duration_ms / 1000, 'val >=0', val >=0)
-    //val = (val >=0 ) ? val : -998 //0
-    //val = (val <= pos_from_end(0)) ? val : -998 //this.pos_from_end(0)
-    val = (val >=0 ) ? val : 0
-    val = (val <= pos_from_end(0)) ? val : pos_from_end(0)
+    val = (val >=0 ) ? val : -998 //0
+    val = (val <= pos_from_end(0)) ? val : -998 //this.pos_from_end(0)
+    //val = (val >=0 ) ? val : 0
+    //val = (val <= pos_from_end(0)) ? val : pos_from_end(0)
     //console.log('after Val:',val, 'pos_from_end(0):',pos_from_end(0), 'lmovie_info',lmovie_info.value.duration_ms / 1000, 'val >=0', val >=0)
     return val
 }
@@ -142,9 +142,10 @@ export const timeline = async (mypos) => {
                 let val = mypos + p*Math.abs(ltimeline.value.step)
                 val = posvalid(val)
                 ltimeline.value.larray.push(val)
+                // sarray.push(pos2fname(val))
             }
-            //console.log(ltimeline.value.larray)
-            //console.log(sarray)
+            // console.log(ltimeline.value.larray)
+            // console.log(sarray)
         } catch (e) {
             console.log(`${endpoint} \n` + String(e));
             alert(`${endpoint} \n` + String(e));
@@ -175,11 +176,16 @@ export const hpos = (b) => {
     if (b.type == "rel") {
         set_timeline_step(Math.abs(b.val))
         if (!toggle_timeline.value) {
-            lpos.value += b.val
+            // console.log('in hpos type rel, lpos before lpos+=b. :',lpos.value)
+            if (posvalid(lpos.value + b.val) >= 0) { lpos.value += b.val } 
+              else if (b.val > 0) { lpos.value = pos_from_end(0) } 
+                else if (b.val < 0) { lpos.value = 0 }
+            
             //console.log('before validation lpos:',lpos.value)
             lpos.value = posvalid(lpos.value)
             //console.log('after validation  lpos:',lpos.value)
         }
+        // console.log('in hpvalos type rel', b, lpos.value)
         timeline(lpos.value)
     // jump to the left or right to an absolute position
     } else if (b.type == "abs") {

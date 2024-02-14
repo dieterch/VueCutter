@@ -4,4 +4,5 @@ pushd /root/prog/python/VueCutter/vue-cutter
 npm run justbuild
 popd
 #hypercorn --log-level INFO -b 0.0.0.0:5200 asgi:start:app
+export PRODUCTION="1" 
 python -OO app.py
