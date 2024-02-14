@@ -14,6 +14,7 @@ import {host, protocol, str2pos, lpos,
         reset_t0_t1,
         set_themecookie
 } from '@/app';
+import { mergeProps } from 'vue';
 
 const theme = useTheme()
 
@@ -108,12 +109,17 @@ load_selection() // initial load
         <template v-slot:prepend>
 
             <v-menu location="bottom">
-                <template v-slot:activator="{ props }">
-                    <v-app-bar-nav-icon
-                    v-bind="props"
-                    size="small"
-                    >
-                    </v-app-bar-nav-icon>
+                <template v-slot:activator="{ props: menu }">
+                    <v-tooltip open-delay="500">
+                        <template v-slot:activator="{ props: tooltip }">
+                            <v-app-bar-nav-icon
+                            v-bind="mergeProps(menu, tooltip)"
+                            size="small"
+                            >
+                            </v-app-bar-nav-icon>
+                        </template>
+                        <span>Plex Section</span>
+                    </v-tooltip>
                 </template>
                 <v-list density="compact">
                     <v-list-item
