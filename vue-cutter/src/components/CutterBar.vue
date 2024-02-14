@@ -79,8 +79,8 @@ async function cut_info() {
             movie: lmovie.value,
             cutlist: cutlist.value,
             //Inplace: inplace.value,
-            ".ap .sc Files ?": lmovie_cut_info.value.apsc,
-            "_cut File ?": lmovie_cut_info.value.cutfile
+            //".ap .sc Files ?": lmovie_cut_info.value.apsc,
+            //"_cut File ?": lmovie_cut_info.value.cutfile
         }
         console.log(cutmsg.value)
         cutterdialog.value = true

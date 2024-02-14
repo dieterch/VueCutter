@@ -75,12 +75,20 @@ function progress() {
                     </thead>
                     <tbody>
                         <tr
-                        v-for = "(val, key) in cutmsg"
-                        :key = "key"
-                        >
-                        <td>{{ key }}</td>
-                        <td>{{ val }}</td>
-                    </tr>
+                            v-for = "(val, key) in cutmsg"
+                            :key = "key"
+                            >
+                            <td>{{ key }}</td>
+                            <td>{{ val }}</td>
+                        </tr>
+                        <tr v-if = "!useffmpeg">
+                            <td>.ap .sc Files ?</td>
+                            <td>{{ lmovie_cut_info.apsc }}</td>
+                        </tr>
+                        <tr v-if = "!useffmpeg">
+                            <td>_cut File ?</td>
+                            <td>{{ lmovie_cut_info.cutfile }}</td>
+                        </tr>
                 </tbody>
             </v-table>
         </v-card-text>
@@ -91,7 +99,7 @@ function progress() {
                 >
                     <v-sheet
                         class="d-flex justify-end bg-toolsbackground"
-                        height="30">
+                        height="35">
                         <v-checkbox
                             density="dense"
                             class="ma-2"

@@ -48,7 +48,7 @@ const buttons_right = computed(() => {
         :width="160"
     >
         <v-divider></v-divider>
-            <div class="no-text-center">
+            <div>
                     <v-chip 
                         prepend-icon="mdi-movie-open" 
                         label
@@ -71,9 +71,9 @@ const buttons_right = computed(() => {
                     </v-chip>
             </div>
         <v-divider></v-divider>
-        <div class="sb_container">
-            <div 
-                class="sb_box sb_box-buttons1 mt-2"
+        <v-sheet class="sb_container">
+            <v-sheet 
+                class="d-flex justify-center align-center sb_box-buttons1 mt-2"
             >
                 <v-btn 
                     v-for="b in buttons_left"
@@ -89,9 +89,9 @@ const buttons_right = computed(() => {
                         {{ b.name }}
                     </span>
                 </v-btn>
-            </div>
+            </v-sheet>
             
-            <div class="sb_box sb_box-buttons2 mt-2">
+            <v-sheet class="d-flex justify-center align-center sb_box-buttons2 mt-2">
                 <v-btn 
                     v-for="b in buttons_right"
                     :append-icon="b.icon"
@@ -106,8 +106,8 @@ const buttons_right = computed(() => {
                         {{ b.name }}
                     </span>
                 </v-btn>
-            </div>            
-        </div>
+            </v-sheet>            
+        </v-sheet>
     </v-navigation-drawer>
   </template>
 
@@ -122,13 +122,6 @@ button {
     grid-template-rows: auto auto auto 100fr;
     grid-template-columns: 50fr 50fr;   
 }
-
-.sb_box {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
 .sb_box-buttons1 {
     flex-direction: column;
     grid-column: 1;
