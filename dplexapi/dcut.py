@@ -92,6 +92,10 @@ class CutterInterface:
 		"""
 		return TS Progress in percent 
 		"""
+		if inplace:
+			targetname =  f"{self._pathname(movie)}"
+		else:
+			targetname =  f"{self._cutname(movie)}"  
 		self.mount(movie)
 		cl = sum([self.cutlength(cut['t0'],cut['t1']) for cut in cutlist])
 		ml = (movie.duration / 60000)
@@ -99,17 +103,17 @@ class CutterInterface:
 		try:
 			moviesize = os.path.getsize(self._pathname(movie))
 			targetsize = faktor * moviesize
-			targetfile = self._cutname(movie) if not inplace else self._tempname(movie)
+			#targetfile = self._cutname(movie) if not inplace else self._tempname(movie)
 			if useffmpeg:
 				# first calculate the size of all parts
 				actualsize = sum([os.path.getsize(f"{self._foldername(movie)}part{i}.ts") for i in range(len(cutlist))])
 				if len(cutlist) > 1:
 					# add the size of the target file to actualsize
-					if os.path.exists(targetfile):
-						actualsize += os.path.getsize(targetfile)
+					if os.path.exists(targetname):
+						actualsize += os.path.getsize(targetname)
 					targetsize = 2 * targetsize # parts and target file
 			else:
-				actualsize = os.path.getsize(targetfile)
+				actualsize = os.path.getsize(targetname)
 		except FileNotFoundError as e:
 			print(str(e))
 			actualsize = 0
@@ -364,12 +368,16 @@ text='{(ftime[:2]+chr(92)+':'+ftime[3:5]+chr(92)+':'+ftime[-2:]).replace('0','O'
 
 	def _ffmpegjoin(self, movie, cutlist, inplace = False):
         # if there is only one part, just rename it to the target file otherwise join the parts
+		if inplace:
+			targetname =  f"{self._pathname(movie)}"
+		else:
+			targetname =  f"{self._cutname(movie)}"
 		if len(cutlist) > 1:
 			print()
 			print(f"'{self._filename(movie)}' wird mit ffmpeg zusammengefügt. -]+{cutlist}+[- ")
 			exc_lst = [self._ffmpeg_binary,"-y","-hide_banner","-loglevel","fatal", "-i"]
 			file_lst = [f"{self._foldername(movie)}part{i}.ts" for i in range(len(cutlist))]
-			exc_lst += [f"concat:" + '|'.join(file_lst),"-c","copy",f"{self._cutname(movie)}"]
+			exc_lst += [f"concat:" + '|'.join(file_lst),"-c","copy",f"{targetname}"]
 			try:
 				print("---------------------------------")
 				print(f"exc_lst: {exc_lst}")
@@ -385,22 +393,18 @@ text='{(ftime[:2]+chr(92)+':'+ftime[3:5]+chr(92)+':'+ftime[-2:]).replace('0','O'
 				raise e
 		else:
 			try:
-				if inplace:
-					targetname =  f"{self._pathname(movie)}"
-				else:
-					targetname =  f"{self._cutname(movie)}"
 				if os.path.exists(targetname):
 					os.remove(targetname)
 				os.rename(f"{self._foldername(movie)}part0.ts",targetname)
 	
  				# remove .ap and .sc files, if they exist
-				print(f"targetname: {targetname}, {targetname+'.ap'}, {targetname+'.sc'}")	
+				# print(f"targetname: {targetname}, {targetname+'.ap'}, {targetname+'.sc'}")	
 				if os.path.exists(targetname+'.ap'):
 					os.remove(targetname+'.ap')
 				if os.path.exists(targetname+'.sc'):
 					os.remove(targetname+'.sc')
 
-				return f"{self._filename(movie)} wurde in {targetname} umbenannt."
+				return f"{self._foldername(movie)}part0.ts wurde in {targetname} umbenannt."
 			except FileNotFoundError as e:
 				raise e
 
@@ -419,7 +423,7 @@ text='{(ftime[:2]+chr(92)+':'+ftime[3:5]+chr(92)+':'+ftime[-2:]).replace('0','O'
 			print("---------------------------------")
 			res = subprocess.check_output(exc_lst)
 			res = res.decode('utf-8')
-			print(f"'{self._filename(movie)}' wurde mit ffmeg geschnitten.")
+			print(f"'{self._filename(movie)}' wurde mit ffmeg nach {self._foldername(movie)}part0.ts geschnitten.")
 			return res
 		except subprocess.CalledProcessError as e:
 			raise e

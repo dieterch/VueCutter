@@ -1,5 +1,7 @@
 pushd /root/prog/python/VueCutter
 tmux \
-new-session 'source _startCutter' \; \
+new-session -s 'CutterVue' 'source _startCutter' \; \
 split-window 'source _startWorker' \; \
 split-window -h 'source _rqinfo' \; \
+detach -s 'CutterVue'
+popd
