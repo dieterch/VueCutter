@@ -185,7 +185,8 @@ if __name__ == '__main__':
         if 'PRODUCTION' in os.environ:
             uvicorn.run('app:app', host='0.0.0.0', port=5200, log_level="info")
         else:
-            asyncio.run(app.run_task(host='0.0.0.0', port=5200, debug=True))
+            uvicorn.run('app:app', host='0.0.0.0', port=5200, log_level="info", reload=True, reload_dirs =['.','./dist'], reload_includes=['*.py','*.js'])
+            #asyncio.run(app.run_task(host='0.0.0.0', port=5200, debug=True))
     finally:
         try:
             plexdata.cutter.umount()
