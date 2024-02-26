@@ -18,19 +18,36 @@ export const protocol = ref(window.location.protocol)
 // Leading Zero's
 export const zeroPad = (num, places) => String(num).padStart(places, '0')
 
-export function setCookie(id, value) { 
-    document.cookie = id + '=' + value; 
+// export function setCookie(id, value) { 
+//     document.cookie = id + '=' + value; 
+// }
+
+// export function getCookie(id) {
+//     let value = document.cookie.match('(^|;)?' + id + '=([^;]*)(;|$)');
+//     return value ? unescape(value[2]) : null;
+//  }
+
+// export function deleteCookie(id) {
+//     document.cookie = id + '=;';
+
+//  }
+
+export const setCookie = (name, value, days = 30, path = '/') => {
+    const expires = new Date(Date.now() + days * 864e5).toUTCString()
+    document.cookie = name + '=' + encodeURIComponent(value) + '; expires=' + expires + '; path=' + path
 }
 
-export function getCookie(id) {
-    let value = document.cookie.match('(^|;)?' + id + '=([^;]*)(;|$)');
-    return value ? unescape(value[2]) : null;
- }
+export const getCookie = (name) => {
+    return document.cookie.split('; ').reduce((r, v) => {
+        const parts = v.split('=')
+        return parts[0] === name ? decodeURIComponent(parts[1]) : r
+    }, '')
+}
 
-export function deleteCookie(id) {
-    document.cookie = id + '=;';
+export const deleteCookie = (name, path) => {
+    setCookie(name, '', -1, path)
+}
 
- }
 
 export function get_themecookie() { return getCookie('theme') || 'LightTheme' }
 export function set_themecookie(mytheme) { return setCookie('theme', mytheme) }
