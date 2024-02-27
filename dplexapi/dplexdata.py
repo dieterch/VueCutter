@@ -32,8 +32,12 @@ class Plexdata:
         with open("config.toml", mode="rb") as fp:
             self.cfg = tomllib.load(fp)
             
-        self.plex = PlexInterface(self.cfg["plexurl"],self.cfg["plextoken"])
-        self.cutter = CutterInterface(self.cfg["fileserver"])
+        try:
+            self.plex = PlexInterface(self.cfg["plexurl"],self.cfg["plextoken"])
+            self.cutter = CutterInterface(self.cfg["fileserver"])
+        except ConnectionError as e:
+            print(f"ConnectionError: {e}")
+            raise e
         self.basedir = basedir
         
         self.redis_connection = Redis(host='localhost',port=6379,password=self.cfg['redispw'], db=0)

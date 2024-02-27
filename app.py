@@ -53,7 +53,11 @@ async def add_header(response):
 # the functionality of the backend is provided by the Plexdata class, which is imported here
 # the Plexdata class is a wrapper around the PlexAPI and the Cutter class
 from dplexapi.dplexdata import Plexdata
-plexdata = Plexdata(os.path.dirname(__file__))
+try:
+    plexdata = Plexdata(os.path.dirname(__file__))
+except Exception as e:
+    print(f"Error: {e}")
+    exit(1)
 
 # routes to provide xspf files for VLC -> would be a candidate to be moved in a separate Quart blueprint
 # all movies in plex
