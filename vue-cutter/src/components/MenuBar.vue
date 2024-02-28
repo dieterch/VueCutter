@@ -35,6 +35,7 @@ async function load_selection() {
         series.value = response.data.series;
         serie.value = response.data.serie;
         lpos.value = str2pos(response.data.pos_time)
+        section_error.value = false
         onChangeMovie()
     } catch (e) {
         section_error.value = true

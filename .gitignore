@@ -158,7 +158,7 @@ dplexapi/mnt/*
 !dplexapi/mnt/.keep
 
 dist/static/*.gif
-!dist/static/error.jpg
+!dist/static/error.png
 !dist/static/spinner_160x90.gif
 !dist/static/spinning-loading.gif
 !dist/static/white.png

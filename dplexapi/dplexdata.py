@@ -8,7 +8,7 @@ import pytz
 from redis import Redis
 from rq import Connection, Queue, Worker
 from rq.job import Job
-import http.client as httplib
+import requests
 
 
 xspf_template = """<?xml version="1.0" encoding="UTF-8"?>
@@ -31,16 +31,18 @@ xspf_template = """<?xml version="1.0" encoding="UTF-8"?>
 
 class Plexdata:
     def __init__(self, basedir) -> None:
+        self.basedir = basedir
+        self.initialize()
+
+    def initialize(self):
         with open("config.toml", mode="rb") as fp:
             self.cfg = tomllib.load(fp)
-
-        conn = httplib.HTTPConnection(self.cfg["fileserver"], timeout=3)
-        try:
-            conn.request("HEAD", "/")
-            conn.close()
+        if self.hostalive():
             try:
                 self.plex = PlexInterface(self.cfg["plexurl"],self.cfg["plextoken"])
                 self.cutter = CutterInterface(self.cfg["fileserver"])
+                self.initial_section = self.plex.sections[0]
+                self.initial_movie_key = 0
                 self.initial_movie = self.initial_section.recentlyAdded()[self.initial_movie_key]
                 self._selection = { 
                     'section_type': self.initial_section.type,
@@ -54,7 +56,12 @@ class Plexdata:
                     'movie' : self.initial_movie,
                     'pos_time' : '00:00:00'
                     }
-                self.initial_section = self.plex.sections[0]
+                self.redis_connection = Redis(host='localhost',port=6379,password=self.cfg['redispw'], db=0)
+                self.q = Queue('VueCutter', connection=self.redis_connection, default_timeout=600)
+            
+                # initialization.
+                self.initial_series_key = 0
+                self.initial_season_key = 0
             except ConnectionError as e:
                 self.initial_movie = ''
                 self._selection = {} 
@@ -62,26 +69,32 @@ class Plexdata:
                 print(f"ConnectionError: {e}")
                 raise e
 
-            
-        except Exception as e:
-            print(f'{self.cfg["fileserver"]} HEAD request reports:"{e}"')
-            conn.close()
+        else:
             self.plex = None
             self.cutter = None
             self.initial_movie = ''
-            self._selection = {}
+            self._selection = { }
             self.initial_section = ''
 
-        finally:
-            self.basedir = basedir
-            self.redis_connection = Redis(host='localhost',port=6379,password=self.cfg['redispw'], db=0)
-            self.q = Queue('VueCutter', connection=self.redis_connection, default_timeout=600)
-            
-            # initialization.
-            self.initial_movie_key = 0
-            self.initial_series_key = 0
-            self.initial_season_key = 0
-                    
+    def hostalive(self) -> bool:
+        try:
+            conn = requests.head(self.cfg['plexurl'], timeout=2)
+            if str(conn) == '<Response [401]>':
+                conn.close()
+                return True
+            else:
+                return False
+        except requests.exceptions.RequestException as e:
+            print(str(e))
+            return False
+        
+    @property
+    def section_title(self):
+        if self.plex is not None:
+            return self._selection['section'].title
+        else:
+            return ''
+
     async def streamsectionall(self):
         if self.plex is not None:
             sec = self._selection['section']
@@ -151,11 +164,17 @@ class Plexdata:
                 raise ValueError('Unknown section type')
             return ret
         else:
-            raise ValueError(f'Plex Server {self.cfg["fileserver"]} not available')
+            self.initialize()
+            return {
+                    'sections': [s.title for s in self._selection['sections']], 
+                    'section': self._selection['section'].title,
+                }
     
     async def _update_section(self, section_name, force=False):
         if self.plex is not None:
             if ((self._selection['section'].title != section_name) or force):
+                if force:
+                    self.initialize()
                 section = self.plex.server.library.section(section_name)
                 if section.type == 'movie':
                     movies = section.recentlyAdded()
@@ -193,7 +212,7 @@ class Plexdata:
                 pass # no change in section
             return self._selection['section']  
         else:
-            raise ValueError(f'Plex Server {self.cfg["fileserver"]} not available')
+            self.initialize()
     
     async def _update_serie(self, serie_name, force=False):
         if self.plex is not None:
@@ -282,7 +301,7 @@ class Plexdata:
                 m_info = { 'movie_info': { 'duration': 0 } }
             return m_info
         else:
-            raise ValueError(f'Plex Server {self.cfg["fileserver"]} not available')
+            return { 'movie_info': { 'duration': 0 } }
     
     async def _movie_cut_info(self):
         if self.plex is not None:
@@ -299,6 +318,8 @@ class Plexdata:
             raise ValueError(f'Plex Server {self.cfg["fileserver"]} not available')
     
     async def _frame(self, req):
+        if not self.hostalive():
+            self.initialize()
         if self.plex is not None:
             if req is not None:
                 movie_name = req['movie_name']
@@ -308,9 +329,9 @@ class Plexdata:
                     pic_name = await self.cutter.aframe(m ,pos_time ,self.basedir + "/dist/static/")
                 except subprocess.CalledProcessError as e:
                     print(f"\nframe throws error:\n{str(e)}\n")             
-                    pic_name = 'error.jpg'
+                    pic_name = 'error.png'
             else:
-                pic_name = 'error.jpg'
+                pic_name = 'error.png'
             return pic_name
         else:
             raise ValueError(f'Plex Server {self.cfg["fileserver"]} not available')

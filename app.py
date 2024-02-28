@@ -10,6 +10,7 @@ import uvicorn
 import asyncio
 import json
 import os
+import signal
 import sys
 from pprint import pformat as pf
 from pprint import pprint as pp
@@ -88,7 +89,8 @@ async def selection():
     try:
         return plexdata.get_selection()
     except:
-        return abort(500)
+        abort(500)
+    
 
 @app.route("/update_section", methods=['POST'])
 async def update_section():
@@ -101,7 +103,7 @@ async def update_section():
 
 @app.route("/force_update_section")
 async def force_update_section():
-        await plexdata._update_section(plexdata._selection['section'].title, force=True)        
+        await plexdata._update_section(plexdata.section_title, force=True)        
         print(f"force_update_section.")
         return redirect(url_for('index'))
 
@@ -182,11 +184,13 @@ async def progress():
 # exit the application
 @app.route("/restart")
 async def doexit():
-    sys.exit(1)
+    os.kill(os.getpid(), signal.SIGTERM)
+    return redirect(url_for('index'))    
 
 @app.route('/wakeonlan')
 async def dowakeonlan():
     wakeonlan.send_magic_packet(plexdata.cfg['fileservermac'])
+    return redirect(url_for('index'))
 
 # deliver the vuetify frontend
 @app.route("/")
@@ -211,6 +215,8 @@ if __name__ == '__main__':
         else:
             uvicorn.run('app:app', host='0.0.0.0', port=5200, log_level="info", reload=True, reload_dirs =['.','./dist'], reload_includes=['*.py','*.js'])
             #asyncio.run(app.run_task(host='0.0.0.0', port=5200, debug=True))
+    except Exception as e:
+        print(f"main: {str(e)}")
     finally:
         try:
             plexdata.cutter.umount()
