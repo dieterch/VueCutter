@@ -10,13 +10,15 @@ import uvicorn
 import asyncio
 import json
 import os
+import sys
 from pprint import pformat as pf
 from pprint import pprint as pp
-from quart import Quart, jsonify, render_template, request, redirect, url_for, send_file
+from quart import Quart, jsonify, render_template, request, redirect, url_for, send_file, abort
 from quart_cors import cors
 import subprocess
 import time
-
+from dplexapi.dplexdata import Plexdata
+import wakeonlan
 
 # overwrite jinja2 delimiters to avoid conflict with vue delimiters, was previosly used by me (Dieter Chvatal)
 # in order to transfer information from the backend to the frontend, while the frontend does not know its host ip address.
@@ -52,130 +54,148 @@ async def add_header(response):
 
 # the functionality of the backend is provided by the Plexdata class, which is imported here
 # the Plexdata class is a wrapper around the PlexAPI and the Cutter class
-from dplexapi.dplexdata import Plexdata
-try:
-    plexdata = Plexdata(os.path.dirname(__file__))
-except Exception as e:
-    print(f"Error: {e}")
-    exit(1)
+plexdata = Plexdata(os.path.dirname(__file__))
 
 # routes to provide xspf files for VLC -> would be a candidate to be moved in a separate Quart blueprint
 # all movies in plex
 @app.route('/streamall.xspf')
 async def streamsectionall():
-    b = await plexdata.streamsectionall()
-    return await send_file(b, as_attachment=True,
-         attachment_filename='streamall.xspf',
-         mimetype='text/xspf+xml')
-    
+        b = await plexdata.streamsectionall()
+        return await send_file(b, as_attachment=True,
+            attachment_filename='streamall.xspf',
+            mimetype='text/xspf+xml')
+        
 # all movies in the section
 @app.route('/streamsection.xspf')
 async def streamsection():
-    b = await plexdata.streamsection()
-    return await send_file(b, as_attachment=True,
-         attachment_filename='streamsection.xspf',
-         mimetype='text/xspf+xml')
-    
+        b = await plexdata.streamsection()
+        return await send_file(b, as_attachment=True,
+            attachment_filename='streamsection.xspf',
+            mimetype='text/xspf+xml')
+        
 # the selected movie
 @app.route('/streamurl.xspf')
 async def streamurl():
-    b = await plexdata.streamurl()
-    return await send_file(b, as_attachment=True,
-         attachment_filename='streamurl.xspf',
-         mimetype='text/xspf+xml')
-
+        b = await plexdata.streamurl()
+        return await send_file(b, as_attachment=True,
+            attachment_filename='streamurl.xspf',
+            mimetype='text/xspf+xml')
+    
 # the backend provides the following routes to the frontend
 # routes to select a section, a serie, a season, a movie, to update a section, a serie, a season, a movie
 @app.route("/selection")
 async def selection():
-    return plexdata.get_selection()
+    try:
+        return plexdata.get_selection()
+    except:
+        return abort(500)
 
 @app.route("/update_section", methods=['POST'])
 async def update_section():
-    await request.get_data()
-    if request.method == 'POST':
-        req = json.loads(await request.body)
-        await plexdata._update_section(req['section'])        
-        print(f"update_section: {pf(req)}")
-        return redirect(url_for('index'))
+        await request.get_data()
+        if request.method == 'POST':
+            req = json.loads(await request.body)
+            await plexdata._update_section(req['section'])        
+            print(f"update_section: {pf(req)}")
+            return redirect(url_for('index'))    
 
 @app.route("/force_update_section")
 async def force_update_section():
-    await plexdata._update_section(plexdata._selection['section'].title, force=True)        
-    print(f"force_update_section.")
-    return redirect(url_for('index'))
+        await plexdata._update_section(plexdata._selection['section'].title, force=True)        
+        print(f"force_update_section.")
+        return redirect(url_for('index'))
 
 @app.route("/update_serie", methods=['POST'])
 async def update_serie():
-    await request.get_data()
-    if request.method == 'POST':
-        req = json.loads(await request.body)
-        await plexdata._update_serie(req['serie'])        
-        print(f"update_serie: {pf(req)}")
-        return redirect(url_for('index'))
+        await request.get_data()
+        if request.method == 'POST':
+            req = json.loads(await request.body)
+            await plexdata._update_serie(req['serie'])        
+            print(f"update_serie: {pf(req)}")
+            return redirect(url_for('index'))
 
 @app.route("/update_season", methods=['POST'])
 async def update_season():
-    await request.get_data()
-    if request.method == 'POST':
-        req = json.loads(await request.body)
-        await plexdata._update_season(req['season'])        
-        print(f"update_season: {pf(req)}")
-        return redirect(url_for('index'))
+        await request.get_data()
+        if request.method == 'POST':
+            req = json.loads(await request.body)
+            await plexdata._update_season(req['season'])        
+            print(f"update_season: {pf(req)}")
+            return redirect(url_for('index'))    
 
 # route to get information about a movie
 @app.route("/movie_info/", methods=['POST'])
 async def set_movie_get_info():
-    await request.get_data()
-    if request.method == 'POST':
-        req = json.loads(await request.body)
-        return await plexdata._movie_info(req)
+        await request.get_data()
+        if request.method == 'POST':
+            req = json.loads(await request.body)
+            try:
+                return await plexdata._movie_info(req)
+            except:
+                return { 'error': 'error' }
 
 # route to get specific information for the cutting process
 @app.route("/movie_cut_info")
 async def get_movie_cut_info():
-    return await plexdata._movie_cut_info()
+        return await plexdata._movie_cut_info()    
 
 # route to generate small pics for a timelind and deliver them to the frontend
 @app.route("/timeline", methods=['POST'])
 async def timeline():
-    await request.get_data()
-    if request.method == 'POST':
-        req = json.loads(await request.body)
-        r = await plexdata._timeline(req)
-        return r 
+        await request.get_data()
+        if request.method == 'POST':
+            req = json.loads(await request.body)
+            r = await plexdata._timeline(req)
+            return r     
 
 # route to get a frame at a scpecific time position and deliver it to the frontend
 @app.route("/frame/", methods=['POST'])
 async def get_frame():
-    await request.get_data()
-    if request.method == 'POST':
-        req = json.loads(await request.body)
-        return { 'frame': url_for('static', filename= await plexdata._frame(req)) }
+        await request.get_data()
+        if request.method == 'POST':
+            req = json.loads(await request.body)
+            try:
+                return { 'frame': url_for('static', filename= await plexdata._frame(req)) }
+            except:
+                return { 'frame': url_for('static', filename='error.png') }
+                  
 
 # route to get the actual post_time of the backend. This is used to update the frontend
 @app.route("/pos")
 async def get_pos():
-    return { 'pos': plexdata._selection['pos_time'] }
+        return { 'pos': plexdata._selection['pos_time'] }
 
 # execute the cutting process. hand over the data to the rq worker
 @app.route("/cut2", methods=['POST'])
 async def do_cut2():
-    await request.get_data()
-    if request.method == 'POST':
-        #req = await request.json
-        req = json.loads(await request.body)
-        return await plexdata._cut2(req)
-        
+        await request.get_data()
+        if request.method == 'POST':
+            #req = await request.json
+            req = json.loads(await request.body)
+            return await plexdata._cut2(req)            
+
 # route to get the progress of the cutting process
 @app.route("/progress")
 async def progress():
-    return await plexdata._doProgress()
+        return await plexdata._doProgress()    
+
+# exit the application
+@app.route("/restart")
+async def doexit():
+    sys.exit(1)
+
+@app.route('/wakeonlan')
+async def dowakeonlan():
+    wakeonlan.send_magic_packet(plexdata.cfg['fileservermac'])
 
 # deliver the vuetify frontend
 @app.route("/")
 async def index():
-    return await render_template('index.html')
+    try:
+        return await render_template('index.html', plexdata=plexdata._selection)
+    except Exception as e:
+        print(f"index: {e}")
+        return abort(500)
 
 if __name__ == '__main__':
     print('''

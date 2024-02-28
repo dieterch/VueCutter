@@ -19,7 +19,9 @@ import { mergeProps } from 'vue';
 const theme = useTheme()
 
 // methods:
+const section_error = ref(false)
 async function load_selection() {
+    console.log("load_selection called")
     const endpoint = `${protocol.value}//${host.value}/selection`
     try {
         const response = await axios.get(endpoint, { headers: { 'Content-type': 'application/json', }});
@@ -35,12 +37,14 @@ async function load_selection() {
         lpos.value = str2pos(response.data.pos_time)
         onChangeMovie()
     } catch (e) {
+        section_error.value = true
         console.log(`${endpoint} \n` + String(e));
-        alert(`${endpoint} \n` + String(e));
+        // alert(`${endpoint} \n` + String(e));
     }
 }
 
 async function update_section( sec ) {
+    console.log("update_section called")
     const endpoint = `${protocol.value}//${host.value}/update_section`
     section.value = sec;
     try {
@@ -55,6 +59,7 @@ async function update_section( sec ) {
 }
 
 async function update_serie() {
+    console.log("update_serie called")
     const endpoint = `${protocol.value}//${host.value}/update_serie`
     try {
         const response = await axios.post(endpoint,
@@ -68,6 +73,7 @@ async function update_serie() {
 } 
 
 async function update_season() {
+    console.log("update_season called")
     const endpoint = `${protocol.value}//${host.value}/update_season`
     try {
         const response = await axios.post(endpoint,
@@ -162,6 +168,7 @@ load_selection() // initial load
             ></v-select>
 
             <v-select
+                v-if="!section_error"
                 class="mt-6 ml-2 mr-2"
                 :label="`${section} - ${movies.length} movies`"
                 v-model="movie"
@@ -171,6 +178,20 @@ load_selection() // initial load
                 variant="solo"
                 @update:model-value="onChangeMovie"
             ></v-select>
+            <v-btn
+                v-if="section_error"
+                prepend-icon="mdi-nas"
+                class="ml-6"
+                href="/wakeonlan" 
+                size="small"
+            >Send WakeOnLan</v-btn>
+            <v-btn
+                v-if="section_error"
+                prepend-icon="mdi-reload"
+                class="ml-6"
+                href="/restart" 
+                size="small"
+            >Restart Vue Web Cut</v-btn>
 
         </template>
 

@@ -42,6 +42,7 @@ export default defineConfig({
     ],
   },
   build: {
+    minify: false,
     outDir: '../dist',
     emptyOutDir: true,
     assetsDir: 'static',
