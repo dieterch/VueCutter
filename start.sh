@@ -1,5 +1,4 @@
 # fresh compile at startup
-ls -al > log.txt
 pushd ./vue-cutter
 npm install
 npm run justbuild
