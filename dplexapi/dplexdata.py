@@ -56,7 +56,8 @@ class Plexdata:
                     'movie' : self.initial_movie,
                     'pos_time' : '00:00:00'
                     }
-                self.redis_connection = Redis(host='localhost',port=6379,password=self.cfg['redispw'], db=0)
+#                self.redis_connection = Redis(host='localhost',port=6379,password=self.cfg['redispw'], db=0)
+                self.redis_connection = Redis(host='redis',port=6379, db=0)
                 self.q = Queue('VueCutter', connection=self.redis_connection, default_timeout=600)
             
                 # initialization.
