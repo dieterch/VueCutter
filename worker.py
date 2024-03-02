@@ -13,8 +13,10 @@ with open("config.toml", mode="rb") as fp:
 cutter = CutterInterface(cfg['fileserver'])
 
 if os.getenv('IN_DOCKER') == 'true':
+    print(f"IN DOCKER - Worker connecting to redis ...")
     redis_connection = Redis(host='redis',port=6379)
 else:
+    print(f"OUTSIDE DOCKER - Worker connecting to redis ...")
     redis_connection = Redis(host='localhost',port=6379,password=cfg['redispw'])
 
 if __name__ == '__main__':
