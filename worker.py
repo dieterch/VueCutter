@@ -1,5 +1,5 @@
 import time
-
+import os
 from redis import Redis
 from redis.exceptions import ConnectionError
 from rq import Connection, Queue, Worker
@@ -12,8 +12,10 @@ with open("config.toml", mode="rb") as fp:
 
 cutter = CutterInterface(cfg['fileserver'])
 
-#redis_connection = Redis(host='localhost',port=6379,password=cfg['redispw'])
-redis_connection = Redis(host='redis',port=6379)
+if os.getenv('IN_DOCKER') == 'true':
+    redis_connection = Redis(host='redis',port=6379)
+else:
+    redis_connection = Redis(host='localhost',port=6379,password=cfg['redispw'])
 
 if __name__ == '__main__':
     for i in range(10):
