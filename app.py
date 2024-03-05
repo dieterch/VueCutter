@@ -192,6 +192,11 @@ async def dowakeonlan():
     wakeonlan.send_magic_packet(plexdata.cfg['fileservermac'])
     return redirect(url_for('index'))
 
+@app.route('/wolserver')
+async def dowolserver():
+    res = plexdata.wolserver()
+    return redirect(url_for('index'))
+
 # deliver the vuetify frontend
 @app.route("/")
 async def index():

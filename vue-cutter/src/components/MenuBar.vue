@@ -183,16 +183,16 @@ load_selection() // initial load
                 v-if="section_error"
                 prepend-icon="mdi-nas"
                 class="ml-6"
-                href="/wakeonlan" 
+                href="/wolserver"
                 size="small"
             >Send WakeOnLan</v-btn>
-            <v-btn
+            <!--v-btn
                 v-if="section_error"
                 prepend-icon="mdi-reload"
                 class="ml-6"
                 href="/restart" 
                 size="small"
-            >Restart Vue Web Cut</v-btn>
+            >Restart Vue Web Cut</v-btn-->
 
         </template>
 

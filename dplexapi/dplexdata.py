@@ -91,6 +91,15 @@ class Plexdata:
             print(str(e))
             return False
         
+    def wolserver(self):
+        try:
+            wolurl = self.cfg['wolurl']
+            r = requests.get(wolurl, timeout=30),
+            #r.raise_for_status()
+            return r
+        except requests.exceptions.HTTPError as err:
+            raise SystemExit(err)
+        
     @property
     def section_title(self):
         if self.plex is not None:
