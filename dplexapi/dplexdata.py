@@ -57,9 +57,11 @@ class Plexdata:
                     'pos_time' : '00:00:00'
                     }
                 
-                if os.getenv('IN_DOCKER') == 'True':
+                if os.getenv('IN_DOCKER') == 'true':
+                    print(f"IN DOCKER - dplexdata connecting to redis ...")
                     self.redis_connection = Redis(host='redis',port=6379, db=0)
                 else:
+                    print(f"OUTSIDE DOCKER - dplexdata connecting to localhost ...")
                     self.redis_connection = Redis(host='localhost',port=6379,password=self.cfg['redispw'], db=0)
                 self.q = Queue('VueCutter', connection=self.redis_connection, default_timeout=600)
                 # initialization.
