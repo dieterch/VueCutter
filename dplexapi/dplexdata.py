@@ -43,7 +43,8 @@ class Plexdata:
                 self.cutter = CutterInterface(self.cfg["fileserver"])
                 self.initial_section = self.plex.sections[0]
                 self.initial_movie_key = 0
-                self.initial_movie = self.initial_section.recentlyAdded()[self.initial_movie_key]
+                #self.initial_movie = self.initial_section.recentlyAdded()[self.initial_movie_key]
+                self.initial_movie = self.initial_section.all()[self.initial_movie_key]
                 self._selection = { 
                     'section_type': self.initial_section.type,
                     'sections' : [s for s in self.plex.sections if ((s.type == 'movie') or (s.type == 'show'))],
@@ -52,7 +53,8 @@ class Plexdata:
                     'season' : None,
                     'series' : None,
                     'serie' : None,
-                    'movies' : self.initial_section.recentlyAdded(),
+                    #'movies' : self.initial_section.recentlyAdded(),
+                    'movies' : self.initial_section.all(),
                     'movie' : self.initial_movie,
                     'pos_time' : '00:00:00'
                     }
@@ -191,7 +193,8 @@ class Plexdata:
                     self.initialize()
                 section = self.plex.server.library.section(section_name)
                 if section.type == 'movie':
-                    movies = section.recentlyAdded()
+                    #movies = section.recentlyAdded()
+                    movies = section.all()
                     default_movie = movies[self.initial_movie_key]
                     self._selection.update({ 
                         'section_type': 'movie',
