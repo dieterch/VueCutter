@@ -9,7 +9,7 @@ import axios from 'axios';
 
 // Global Functions & Variables
 export const host = ref(window.location.host)
-export const protocol = ref(window.location.protocol)    
+export const protocol = ref(window.location.protocol)
 
 // ************************************************************************************************
 // general Tools
@@ -18,8 +18,8 @@ export const protocol = ref(window.location.protocol)
 // Leading Zero's
 export const zeroPad = (num, places) => String(num).padStart(places, '0')
 
-// export function setCookie(id, value) { 
-//     document.cookie = id + '=' + value; 
+// export function setCookie(id, value) {
+//     document.cookie = id + '=' + value;
 // }
 
 // export function getCookie(id) {
@@ -57,7 +57,7 @@ export function set_themecookie(mytheme) { return setCookie('theme', mytheme) }
 // ************************************************************************************************
 export const lpos = ref(0)
 
-// computed variabel pos ... loads frame @ movie position 
+// computed variabel pos ... loads frame @ movie position
 export const pos = computed({
     get: () => {
             //console.log("in pos getter ", lpos.value)
@@ -73,7 +73,7 @@ export const pos = computed({
 
 // seconds to 'hh:mm:ss' string
 export const pos2str = (pos) => {
-    pos = (pos >= 0) ? pos : 0 
+    pos = (pos >= 0) ? pos : 0
     return `${zeroPad(Math.trunc(pos / 3600),2)}:${zeroPad(Math.trunc((pos % 3600) / 60),2)}:${zeroPad(Math.trunc(pos % 60,2),2)}`
 }
 
@@ -85,7 +85,7 @@ export const str2pos = (st) => {
 
 // position from end, input seconds
 export const pos_from_end = (dsec) => {
-    let val = Math.trunc(lmovie_info.value.duration_ms / 1000 - dsec) 
+    let val = Math.trunc(lmovie_info.value.duration_ms / 1000 - dsec)
     val = (val < 0) ? 0 : val
     return val
 }
@@ -93,8 +93,8 @@ export const pos_from_end = (dsec) => {
 // check if position is valid
 export const posvalid = (val) => {
     // if val is outside of movie duration, return -998
-    val = (val >=0 ) ? val : -998 
-    val = (val <= pos_from_end(0)) ? val : -998 
+    val = (val >=0 ) ? val : -998
+    val = (val <= pos_from_end(0)) ? val : -998
     return val
 }
 
@@ -137,7 +137,7 @@ export const timeline = async (mypos) => {
         // const sarray = []
         try {
             const response = await axios.post(endpoint,
-                { 
+                {
                     "basename": ltimeline.value.basename,
                     "pos": mypos,
                     "l": ltimeline.value.l,
@@ -175,7 +175,7 @@ export const t0 = ref("00:00:00")
 export const t0_valid = ref(false)
 export const t1 = ref("01:00:00")
 export const t1_valid = ref(false)
-export const inplace = ref(true) 
+export const inplace = ref(true)
 export const cutterdialog = ref(false)
 export const cutterdialog_enable_cut = ref(false)
 export const cutlist = ref([])
@@ -190,10 +190,10 @@ export const hpos = (b) => {
         set_timeline_step(Math.abs(b.val))
         if (!toggle_timeline.value) {
             // console.log('in hpos type rel, lpos before lpos+=b. :',lpos.value)
-            if (posvalid(lpos.value + b.val) >= 0) { lpos.value += b.val } 
-              else if (b.val > 0) { lpos.value = pos_from_end(0) } 
+            if (posvalid(lpos.value + b.val) >= 0) { lpos.value += b.val }
+              else if (b.val > 0) { lpos.value = pos_from_end(0) }
                 else if (b.val < 0) { lpos.value = 0 }
-            
+
             //console.log('before validation lpos:',lpos.value)
             lpos.value = posvalid(lpos.value)
             //console.log('after validation  lpos:',lpos.value)
@@ -209,12 +209,12 @@ export const hpos = (b) => {
     } else if (b.type == "t0")  {
         t0.value = pos.value
         t0_valid.value = true
-        toggle_timeline.value = false 
+        toggle_timeline.value = false
     // Store End of the cutting window in t1
     }else if (b.type == "t1")  {
         t1.value = pos.value
-        t1_valid.value = true 
-        toggle_timeline.value = false 
+        t1_valid.value = true
+        toggle_timeline.value = false
     } else {
         alert("unknown type in hpos")
     }
@@ -224,9 +224,9 @@ export const hpos = (b) => {
 // reset the cutting interval buttons
 export function reset_t0_t1() {
     t0.value = "00:00:00"
-    t0_valid.value = false 
+    t0_valid.value = false
     t1.value = "01:00:00"
-    t1_valid.value = false                 
+    t1_valid.value = false
 }
 
 // Start the cutlist all over again
@@ -297,7 +297,7 @@ export async function get_frame(pos) {
             { "pos_time": pos, "movie_name": movie.value },
             { headers: { 'Content-type': 'application/json', }});
         frame_name.value = response.data.frame + '?' + String(Math.random());
-        // toggle_timeline.value = false  
+        // toggle_timeline.value = false
     } catch (e) {
         console.log(`${endpoint} \n` + String(e));
         alert(`${endpoint} \n` + String(e));

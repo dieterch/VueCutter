@@ -3,15 +3,16 @@ import { ref, computed } from 'vue'
 import axios from 'axios';
 import { useTheme } from 'vuetify'
 
-import {host, protocol, str2pos, lpos, 
+import {host, protocol, str2pos, lpos,
         section_type,
         sections,section,
         movies, movie,
         seasons,season,
-        series, serie, 
-        toggle_timeline, 
-        timeline, 
+        series, serie,
+        toggle_timeline,
+        timeline,
         reset_t0_t1,
+        reset_cutlist,
         set_themecookie
 } from '@/app';
 import { mergeProps } from 'vue';
@@ -71,7 +72,7 @@ async function update_serie() {
         console.log(`${endpoint} \n` + String(e));
         alert(`${endpoint} \n` + String(e));
     }
-} 
+}
 
 async function update_season() {
     console.log("update_season called")
@@ -88,13 +89,14 @@ async function update_season() {
 }
 
 function onChangeMovie() {
-    reset_t0_t1()
+    // reset_t0_t1()
+    reset_cutlist()
     toggle_timeline.value = false
     console.log("onChangeMovie")
-}   
+}
 
 function setTheme (themeName) {
-    set_themecookie(themeName) 
+    set_themecookie(themeName)
     theme.global.name.value = themeName || 'LightTheme'
 }
 
@@ -108,7 +110,7 @@ load_selection() // initial load
 
 <template>
     <v-app-bar
-        name="menu-bar" 
+        name="menu-bar"
         color="toolsbackground"
         density="compact"
         :elevation="0"
@@ -190,28 +192,28 @@ load_selection() // initial load
                 v-if="section_error"
                 prepend-icon="mdi-reload"
                 class="ml-6"
-                href="/restart" 
+                href="/restart"
                 size="small"
             >Restart Vue Web Cut</v-btn-->
 
         </template>
 
         <template v-slot:append>
-            <v-btn 
-                icon="mdi-reload" 
+            <v-btn
+                icon="mdi-reload"
                 class="ml-6"
-                href="/force_update_section" 
+                href="/force_update_section"
                 size="small"
             ></v-btn>
             <v-btn icon="mdi-dots-vertical" href="/streamurl.xspf" size="small"></v-btn>
-            <v-menu 
+            <v-menu
                 location="bottom"
                 >
                 <template v-slot:activator="{ props }">
-                    <v-btn 
-                        icon="mdi-palette-swatch" 
-                        @click="toggleTheme" 
-                        v-bind="props" 
+                    <v-btn
+                        icon="mdi-palette-swatch"
+                        @click="toggleTheme"
+                        v-bind="props"
                         size="small"
                     ></v-btn>
                 </template>
@@ -230,7 +232,7 @@ load_selection() // initial load
                             >{{ key }}</v-list-item-title>
                         </v-list-item>
                 </v-list>
-            </v-menu>            
+            </v-menu>
         </template>
     </v-app-bar>
 
