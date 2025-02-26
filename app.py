@@ -216,9 +216,26 @@ if __name__ == '__main__':
 ''')
     try:
         if 'PRODUCTION' in os.environ:
-            uvicorn.run('app:app', host='0.0.0.0', port=5200, log_level="info")
+            uvicorn.run(
+                 'app:app', 
+                 host='0.0.0.0', 
+                 port=5200, 
+                 log_level="info",
+                 ssl_keyfile="/etc/certs/dvuecutter.home.smallfamilybusiness.net-key.pem",
+                 ssl_certfile="/etc/certs/dvuecutter.home.smallfamilybusiness.net.pem"
+                 )
         else:
-            uvicorn.run('app:app', host='0.0.0.0', port=5200, log_level="info", reload=True, reload_dirs =['.','./dist'], reload_includes=['*.py','*.js'])
+            uvicorn.run(
+                 'app:app', 
+                 host='0.0.0.0', 
+                 port=5200, 
+                 log_level="info", 
+                 reload=True, 
+                 reload_dirs =['.','./dist'], 
+                 reload_includes=['*.py','*.js'],
+                 #ssl_keyfile="/etc/certs/dvuecutter.home.smallfamilybusiness.net.crt",
+                 #ssl_certfile="/etc/certs/dvuecutter.home.smallfamilybusiness.net.key"
+                 )
             #asyncio.run(app.run_task(host='0.0.0.0', port=5200, debug=True))
     except Exception as e:
         print(f"main: {str(e)}")
