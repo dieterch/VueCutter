@@ -38,6 +38,7 @@ class CustomQuart(Quart):
 # run 'npm run build' after each modification of the frontend. Once you run this once, the included watch mode will
 # take care of the rest.
 app = CustomQuart(__name__, static_folder = "dist/static", template_folder = "dist", static_url_path = "/static")
+app.config['PREFERRED_URL_SCHEME'] = 'https'
 app = cors(app, allow_origin="*")
 app.config.from_object(__name__)
 
@@ -221,15 +222,19 @@ if __name__ == '__main__':
                  host='0.0.0.0', 
                  port=5200, 
                  log_level="info",
-                 ssl_keyfile="/etc/certs/dvuecutter.home.smallfamilybusiness.net-key.pem",
-                 ssl_certfile="/etc/certs/dvuecutter.home.smallfamilybusiness.net.pem"
+                 proxy_headers=True,
+                 forwarded_allow_ips="*",
+                 #ssl_keyfile="/etc/certs/dvuecutter.home.smallfamilybusiness.net-key.pem",
+                 #ssl_certfile="/etc/certs/dvuecutter.home.smallfamilybusiness.net.pem"
                  )
         else:
             uvicorn.run(
                  'app:app', 
                  host='0.0.0.0', 
                  port=5200, 
-                 log_level="info", 
+                 log_level="info",
+                 proxy_headers=True,
+                 forwarded_allow_ips="*",
                  reload=True, 
                  reload_dirs =['.','./dist'], 
                  reload_includes=['*.py','*.js'],

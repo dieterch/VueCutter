@@ -265,6 +265,7 @@ export const frame_name = ref('');
 // load information about the selected movie/video
 export async function load_movie_info() {
     const endpoint = `${protocol.value}//${host.value}/movie_info`
+    // console.log(`in load movie info, Movie ${lmovie.value}`, endpoint)
     try {
         const response = await axios.post(endpoint,
             { "section": section.value, "movie": lmovie.value },
